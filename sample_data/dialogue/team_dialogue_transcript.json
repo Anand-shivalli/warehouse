@@ -1,0 +1,14 @@
+{
+  "audio_file": "team_dialogue.mp3",
+  "language": "en",
+  "duration_sec": 62.0,
+  "segments": [
+    {"speaker": "SPEAKER_00", "start": 0.0, "end": 5.2, "text": "Did you see the new shift schedule for next week?"},
+    {"speaker": "SPEAKER_01", "start": 5.6, "end": 9.8, "text": "Yeah, I'm on mornings again."},
+    {"speaker": "SPEAKER_00", "start": 24.0, "end": 29.5, "text": "Whoa, that drum just tipped off the pallet in Bay 4!"},
+    {"speaker": "SPEAKER_01", "start": 29.9, "end": 36.2, "text": "The cap broke and there's blue liquid on the floor. Stay back until we know what it is."},
+    {"speaker": "SPEAKER_00", "start": 36.8, "end": 40.1, "text": "Nobody was near it. Dave was close but he's fine."},
+    {"speaker": "SPEAKER_01", "start": 40.6, "end": 47.3, "text": "I'll cone it off and call the cleanup team. No injuries, nothing needed."},
+    {"speaker": "SPEAKER_00", "start": 55.0, "end": 58.0, "text": "Safety huddle is still at three, right?"}
+  ]
+}

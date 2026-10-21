@@ -1,0 +1,31 @@
+misato@misato:~/incident-pipeline$ python3 main.py
+/home/misato/incident-pipeline/main.py:14: DeprecationWarning: ParallelAgent is deprecated in favor of Workflow and will be removed in a future version. Workflow cannot yet be used as an LlmAgent sub-agent.
+  capture_analysis = ParallelAgent(
+/home/misato/incident-pipeline/main.py:23: DeprecationWarning: SequentialAgent is deprecated in favor of Workflow and will be removed in a future version. Workflow cannot yet be used as an LlmAgent sub-agent.
+  compose_and_verify = SequentialAgent(
+/home/misato/incident-pipeline/main.py:33: DeprecationWarning: SequentialAgent is deprecated in favor of Workflow and will be removed in a future version. Workflow cannot yet be used as an LlmAgent sub-agent.
+  review_and_compose = SequentialAgent(
+/home/misato/incident-pipeline/main.py:39: DeprecationWarning: SequentialAgent is deprecated in favor of Workflow and will be removed in a future version. Workflow cannot yet be used as an LlmAgent sub-agent.
+  pipeline = SequentialAgent(
+Direct use of automatic function calling (AFC) in AsyncModels.generate_content is not recommended. Instead, we recommend to use AFC in AsyncChat.send_message. Similarly, direct use of AFC in AsyncModels.generate_content_stream is not recommended. Instead, we recommend to use AFC in AsyncChat.send_message_stream.
+[ExtractionAgent] {"injury_occurred":false,"treatment_described":"None","location":"Bay 4","witnesses":["Dave"],"narrative_summary":"A 55-gallon yellow drum tipped off a stack of pallets in Bay 4, causing bright blue liquid to spill onto the floor. No injuries occurred, and the area was cordoned off while Dave called the cleanup team."}
+[VisionAgent] {"hazard_type":"Chemical Spill / Liquid Spill","visible_injury_severity":"none","visible_damage":"Tipped yellow 55-gallon drum with liquid spilled onto warehouse floor","description":"A yellow 55-gallon drum has fallen off a stack of wooden pallets, spilling bright blue liquid across the warehouse floor. The area is marked with four orange safety cones and a spill hazard caution sign. A worker wearing safety equipment (hard hat, high-vis vest, gloves) is standing by the spill with a broom and absorbent pad."}
+[ConflictCheck] {"conflict":false,"reason":"Both the narrative and visual evidence consistently describe a tipped yellow 55-gallon drum resulting in a bright blue liquid spill on the warehouse floor with no injuries and safety cones in place."}
+[SignalNormalizer] {"injury_occurred":false,"treatment_level":"none","potential_severity":"high","confidence":"high"}
+/home/misato/.local/lib/python3.10/site-packages/google/adk/tools/set_model_response_tool.py:260: UserWarning: [EXPERIMENTAL] feature JSON_SCHEMA_FOR_FUNC_DECL is enabled.
+  build_function_declaration(
+[ComplianceClassifier] {"category": "near_miss", "flags": []}
+[ReviewerPass1] {"review_pass": true, "notes": "All data points are consistent, required fields are present, and the category 'near_miss' logically follows from the signal indicators."}
+[Composer] {"report_text":"INCIDENT REPORT: A near miss incident involving a Chemical Spill / Liquid Spill occurred in Bay 4. A yellow 55-gallon drum fell off a stack of wooden pallets, spilling bright blue liquid onto the warehouse floor. No injuries occurred, and no treatment was required. Witness Dave was present. The hazard area was cordoned off using four orange safety cones and a spill hazard caution sign. A worker wearing personal protective equipment (hard hat, high-vis vest, and gloves) stood by the spill with a broom and absorbent pad to manage containment while Dave called the cleanup team."}
+[ReviewerPass2] {"review_pass": true, "notes": "All claims in the report are fully supported by the extracted data and vision report."}
+[Gate_Pass2] Final report passed.
+
+--- Final state ---
+extraction_result: {'injury_occurred': False, 'treatment_described': 'None', 'location': 'Bay 4', 'witnesses': ['Dave'], 'narrative_summary': 'A 55-gallon yellow drum tipped off a stack of pallets in Bay 4, causing bright blue liquid to spill onto the floor. No injuries occurred, and the area was cordoned off while Dave called the cleanup team.'}
+vision_result: {'hazard_type': 'Chemical Spill / Liquid Spill', 'visible_injury_severity': 'none', 'visible_damage': 'Tipped yellow 55-gallon drum with liquid spilled onto warehouse floor', 'description': 'A yellow 55-gallon drum has fallen off a stack of wooden pallets, spilling bright blue liquid across the warehouse floor. The area is marked with four orange safety cones and a spill hazard caution sign. A worker wearing safety equipment (hard hat, high-vis vest, gloves) is standing by the spill with a broom and absorbent pad.'}
+conflict_result: {'conflict': False, 'reason': 'Both the narrative and visual evidence consistently describe a tipped yellow 55-gallon drum resulting in a bright blue liquid spill on the warehouse floor with no injuries and safety cones in place.'}
+signals: {'injury_occurred': False, 'treatment_level': 'none', 'potential_severity': 'high', 'confidence': 'high'}
+category_result: {'category': 'near_miss', 'flags': []}
+review1_result: {'review_pass': True, 'notes': "All data points are consistent, required fields are present, and the category 'near_miss' logically follows from the signal indicators."}
+report_text: {'report_text': 'INCIDENT REPORT: A near miss incident involving a Chemical Spill / Liquid Spill occurred in Bay 4. A yellow 55-gallon drum fell off a stack of wooden pallets, spilling bright blue liquid onto the warehouse floor. No injuries occurred, and no treatment was required. Witness Dave was present. The hazard area was cordoned off using four orange safety cones and a spill hazard caution sign. A worker wearing personal protective equipment (hard hat, high-vis vest, and gloves) stood by the spill with a broom and absorbent pad to manage containment while Dave called the cleanup team.'}
+review2_result: {'review_pass': True, 'notes': 'All claims in the report are fully supported by the extracted data and vision report.'}

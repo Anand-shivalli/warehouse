@@ -1,0 +1,9 @@
+{
+  "audio_file": "ambient_site.mp3",
+  "duration_sec": 120.0,
+  "anomaly_detected": true,
+  "events": [
+    {"label": "Smash, crash", "score": 0.71, "start_sec": 23.5, "end_sec": 24.5},
+    {"label": "Shout", "score": 0.52, "start_sec": 24.5, "end_sec": 25.5}
+  ]
+}

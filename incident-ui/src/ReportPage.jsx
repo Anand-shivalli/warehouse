@@ -24,8 +24,10 @@ const STEPS = [
   ["Conflict check", ["ConflictCheck"]],
   ["Signal normalization", ["SignalNormalizer"]],
   ["Classification and flags", ["ComplianceClassifier"]],
+  ["Document retrieval (SOPs, guidelines, RoHS)", ["RetrievalStep"]],
   ["Review 1: consistency", ["ReviewerPass1"]],
   ["Report writing", ["Composer"]],
+  ["Citation check", ["ReportValidator"]],
   ["Review 2: grounding", ["ReviewerPass2", "Gate_Pass2"]],
 ];
 
@@ -33,7 +35,7 @@ export function ReportPage() {
   const [trigFile, setTrigFile] = useState(null);
   const [trig, setTrig] = useState(null);
   const [armed, setArmed] = useState(false);
-  const [path, setPath] = useState("B");
+  const [path, setPath] = useState("A");
   const [audio, setAudio] = useState(null);
   const [media, setMedia] = useState(null);
   const [dialogue, setDialogue] = useState(null);
@@ -82,7 +84,7 @@ export function ReportPage() {
   }, [jobId, poll]);
 
   const seen = new Set((job?.events || []).map((e) => e.author));
-  const canRun = armed && (path === "A" ? audio && media : dialogue);
+  const canRun = path === "A" ? audio && media : armed && dialogue;   // Path A is direct intake: no ambient trigger needed
   const res = job?.result;
 
   return (
@@ -91,7 +93,7 @@ export function ReportPage() {
       <p className="text-sm text-neutral-500">From a sound, a conversation or a photo to a verified incident report.</p>
       <div className="grid gap-4 xl:grid-cols-2">
         <div className="space-y-4">
-          <Step n="1" title="Trigger signal (ambient audio)">
+          <Step n="1" title={path === "A" ? "Trigger signal (ambient audio, optional for Path A)" : "Trigger signal (ambient audio)"}>
             <FileInput label="Ambient audio events JSON" accept=".json" onChange={(f) => { setTrigFile(f); setTrig(null); setArmed(false); }} />
             <div className="mt-3"><Btn disabled={!trigFile || busy} onClick={analyze}>Analyze signal</Btn></div>
             {trig && (
@@ -102,16 +104,16 @@ export function ReportPage() {
               </div>)}
           </Step>
 
-          <Step n="2" title="Choose a path" locked={!armed}>
+          <Step n="2" title="Choose a path">
             <div className="grid grid-cols-2 gap-3">
               {[["A", "Path A: Direct intake", "Photo or video plus a spoken note"], ["B", "Path B: Team dialogue", "Conversation transcript JSON"]].map(([k, t, d]) => (
-                <button key={k} disabled={!armed} onClick={() => setPath(k)}
+                <button key={k} onClick={() => setPath(k)}
                   className={`rounded-lg border p-3 text-left text-sm transition ${path === k ? "border-blue-500 bg-blue-950/40" : "border-white/10 bg-[#111] hover:bg-[#1c1c1c]"}`}>
                   <p className="text-white">{t}</p><p className="mt-1 text-xs text-neutral-500">{d}</p></button>))}
             </div>
           </Step>
 
-          <Step n="3" title="Inputs" locked={!armed}>
+          <Step n="3" title="Inputs">
             <div className="space-y-3">
               {path === "A" ? <>
                 <FileInput label="Spoken note (audio)" accept="audio/*" onChange={setAudio} />
@@ -120,6 +122,7 @@ export function ReportPage() {
                 <FileInput label="Dialogue transcript JSON (WhisperX + pyannote)" accept=".json" onChange={setDialogue} />
                 <FileInput label="Video clip (optional)" accept="video/*" onChange={setVideo} />
               </>}
+              {path === "B" && !armed && <p className="text-xs text-amber-300">Path B needs an ambient audio signal with an anomaly (step 1).</p>}
               <Btn disabled={!canRun || busy} onClick={run}>Run pipeline</Btn>
             </div>
           </Step>
@@ -155,7 +158,10 @@ export function ReportPage() {
                 <span className={`rounded-full px-3 py-1 ${res.needs_human_review ? "bg-amber-950 text-amber-300" : "bg-emerald-950 text-emerald-300"}`}>{res.needs_human_review ? "Needs human review" : "Review passed"}</span>
               </div>
               <p className="whitespace-pre-wrap rounded-lg bg-[#111] p-3 text-sm leading-relaxed text-neutral-200">{res.report || "No report was produced. See review notes."}</p>
-              {res.needs_human_review && (res.review1?.notes || res.review2?.notes) && <p className="text-xs text-amber-300">{res.review2?.notes || res.review1?.notes}</p>}
+              {res.needs_human_review && (res.validation?.notes || res.review1?.notes || res.review2?.notes) && <p className="text-xs text-amber-300">{[res.validation?.notes, res.review2?.notes || res.review1?.notes].filter(Boolean).join(" ")}</p>}
+              {res.retrieval?.hits?.length > 0 && <div className="rounded-lg bg-[#111] p-3 text-xs text-neutral-400"><p className="mb-1 text-neutral-300">Documents retrieved</p>
+                {res.retrieval.hits.map((h) => <p key={h.sid}>[{h.sid}] {h.doc} rev {h.rev} · {h.section || "untitled"} · p.{h.page}</p>)}</div>}
+              {res.retrieval?.status && res.retrieval.status !== "ok" && <p className="text-xs text-amber-300">Document retrieval: {res.retrieval.status}</p>}
               <p className="text-xs text-neutral-500">AI-generated draft. A human reviewer approves it.</p>
             </div>}
             {!res && <p className="text-sm text-neutral-500">The report appears here when the pipeline finishes.</p>}

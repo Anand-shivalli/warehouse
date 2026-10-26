@@ -1,0 +1,17 @@
+# Add these to your existing requirements.txt (google-adk, pydantic, python-dotenv)
+fastapi
+uvicorn
+python-multipart
+psycopg[binary,pool]
+httpx
+pypdf
+python-docx
+python-dotenv
+
+# Optional, best parsing quality (layout, tables, OCR). Large install: pulls PyTorch and downloads models on first use.
+# On a machine with no GPU, install the CPU build of torch first (see README_RAG.md).
+# docling
+
+# Tests only
+# pytest
+# reportlab

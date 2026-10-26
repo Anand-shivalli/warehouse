@@ -12,6 +12,8 @@ from agents.vision_agent import vision_agent
 from agents.classifier_pipeline import classification_pipeline
 from agents.review_compose_pipeline import reviewer_pass1, composer_agent, reviewer_pass2
 from agents.review_gate import ReviewGate
+from agents.retrieval_step import RetrievalStep
+from agents.report_validator import ReportValidator
 from agents.triage_agent import triage_agent
 from agents.extraction_agent_text import text_extraction_agent
 from tools.transcript_loader import format_transcript, build_incident_text
@@ -27,10 +29,10 @@ app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http
 
 # ---- fresh pipeline per job (agents allow one parent, so clone the module-level templates) ----
 def _review_chain():
-    g2 = ReviewGate(name="Gate_Pass2", review_key="review2_result", next_agent=None, stage_name="Final report")
-    cv = SequentialAgent(name="ComposeAndVerify", sub_agents=[composer_agent.clone(), reviewer_pass2.clone(), g2])
+    g2 = ReviewGate(name="Gate_Pass2", review_key="review2_result", extra_keys=["validation_result"], next_agent=None, stage_name="Final report")
+    cv = SequentialAgent(name="ComposeAndVerify", sub_agents=[composer_agent.clone(), ReportValidator(name="ReportValidator"), reviewer_pass2.clone(), g2])
     g1 = ReviewGate(name="Gate_Pass1", review_key="review1_result", next_agent=cv, stage_name="Pre-composition review")
-    return SequentialAgent(name="ReviewAndCompose", sub_agents=[reviewer_pass1.clone(), g1])
+    return SequentialAgent(name="ReviewAndCompose", sub_agents=[RetrievalStep(name="RetrievalStep"), reviewer_pass1.clone(), g1])
 
 def pipeline_a():
     capture = ParallelAgent(name="CaptureAnalysis", sub_agents=[extraction_agent.clone(), vision_agent.clone()])
@@ -82,14 +84,15 @@ def summarize(state):
     def d(k):
         v = state.get(k)
         return v if isinstance(v, dict) else None
-    rep, r1, r2 = d("report_text"), d("review1_result"), d("review2_result")
+    rep, r1, r2, val = d("report_text"), d("review1_result"), d("review2_result"), d("validation_result")
     cat = d("category_result") or {}
     return {
         "report": rep["report_text"] if rep else None,
         "category": cat.get("category"), "flags": cat.get("flags", []),
         "signals": d("signals"), "extraction": d("extraction_result"), "vision": d("vision_result"),
-        "review1": r1, "review2": r2,
-        "needs_human_review": not (rep and r2 and r2.get("review_pass")),
+        "review1": r1, "review2": r2, "validation": val, "composed": rep,
+        "retrieval": {"status": state.get("retrieval_status"), "hits": state.get("retrieval_hits") or [], "log": state.get("retrieval_log") or []},
+        "needs_human_review": not (rep and r2 and r2.get("review_pass") and val and val.get("review_pass")),
         "state": json.loads(json.dumps(state, default=str)),
     }
 

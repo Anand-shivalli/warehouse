@@ -1,0 +1,1249 @@
+{
+  "generated_at": "2026-10-22T04:09:53.959Z",
+  "incidents": [
+    {
+      "incident_id": "INC-1048",
+      "title": "Forklift near miss at Dock A",
+      "priority": "P1",
+      "status": "new",
+      "incident_type": "Forklift near miss",
+      "source": "edge",
+      "site_id": "WH-07 Columbus",
+      "zone_id": "Dock A",
+      "camera_id": "CAM-A2",
+      "equipment_id": "Forklift FL-12",
+      "assigned_to": "Unassigned",
+      "occurred_at": "2026-10-22T04:04:53.957Z",
+      "received_at": "2026-10-22T04:05:53.957Z",
+      "affected": [
+        "Dock A",
+        "Forklift FL-12"
+      ],
+      "classification": {
+        "category": "near_miss",
+        "confidence": 0.86,
+        "flags": []
+      },
+      "evidence": [
+        {
+          "asset_id": "AST-10481",
+          "type": "video",
+          "name": "INC-1048_clip.mp4",
+          "size": "4.2 MB",
+          "checksum": "41c432856e84896bd5fbe8a393a7617132bebb49fa95737e",
+          "captured_at": "2026-10-22T04:04:53.957Z",
+          "uploaded_at": "2026-10-22T04:05:53.957Z",
+          "uploader": "edge-CAM-A2"
+        },
+        {
+          "asset_id": "AST-10482",
+          "type": "audio",
+          "name": "INC-1048_audio.mp3",
+          "size": "310 KB",
+          "checksum": "41c43285641ad3d3974f8eb48b6ed4951dd14540b681e09e",
+          "captured_at": "2026-10-22T04:04:53.957Z",
+          "uploaded_at": "2026-10-22T04:05:53.957Z",
+          "uploader": "edge-CAM-A2"
+        }
+      ],
+      "detections": [
+        {
+          "model": "proximity 0.9",
+          "event": "Forklift near miss",
+          "confidence": 0.86,
+          "offset_s": 6
+        }
+      ],
+      "transcript": [],
+      "locations": [
+        {
+          "source_type": "Camera registry",
+          "method": "camera to zone mapping v3",
+          "lat": 39.9612,
+          "lon": -83.0003,
+          "accuracy_m": null,
+          "captured_at": "2026-10-22T04:04:53.957Z",
+          "validation": "mapped"
+        }
+      ],
+      "runs": [
+        {
+          "run_id": "RUN-1048A",
+          "agent": "ClassifierAgent 1.2",
+          "status": "completed",
+          "started_at": "2026-10-22T04:06:53.957Z",
+          "duration_s": 9
+        },
+        {
+          "run_id": "RUN-1048B",
+          "agent": "SOP search tool",
+          "status": "completed",
+          "started_at": "2026-10-22T04:07:53.957Z",
+          "duration_s": 2
+        },
+        {
+          "run_id": "RUN-1048C",
+          "agent": "FinalReportAgent 1.2",
+          "status": "completed",
+          "started_at": "2026-10-22T04:08:53.957Z",
+          "duration_s": 14
+        }
+      ],
+      "retrievals": [
+        {
+          "query": "Forklift near miss response Dock A",
+          "hits": [
+            {
+              "doc": "SOP-017",
+              "rev": "E",
+              "section": "Powered industrial truck safety",
+              "page": 4,
+              "score": 0.82
+            },
+            {
+              "doc": "SOP-001",
+              "rev": "F",
+              "section": "Incident reporting duties",
+              "page": 2,
+              "score": 0.64
+            }
+          ]
+        }
+      ],
+      "report": {
+        "report_id": "RPT-1048",
+        "version": 1,
+        "review_status": "draft",
+        "generated_by": "FinalReportAgent 1.2",
+        "summary": "A forklift and a pedestrian came within about one metre at the Dock A crossing. No contact was recorded.",
+        "observed": [
+          "Proximity model fired 6 s into the clip.",
+          "The pedestrian stepped back and the forklift stopped."
+        ],
+        "interpretation": [
+          "Near miss with high potential severity at a shared crossing."
+        ],
+        "unknowns": [
+          "Whether the pedestrian was inside the marked walkway."
+        ],
+        "recommendations": [
+          "Review Dock A crossing signage.",
+          "Brief operators on horn use at blind corners."
+        ],
+        "citations": [
+          {
+            "doc": "SOP-017",
+            "rev": "E",
+            "section": "Powered industrial truck safety",
+            "page": 4
+          }
+        ],
+        "reviewed_by": null,
+        "review_note": null
+      },
+      "audit": [
+        {
+          "actor": "Edge service",
+          "action": "Incident created",
+          "at": "2026-10-22T04:05:53.957Z"
+        },
+        {
+          "actor": "Orchestrator",
+          "action": "Classified and draft report v1 generated",
+          "at": "2026-10-22T04:08:53.957Z"
+        }
+      ]
+    },
+    {
+      "incident_id": "INC-1047",
+      "title": "Chemical spill in Bay 4",
+      "priority": "P2",
+      "status": "in_review",
+      "incident_type": "Spill",
+      "source": "worker",
+      "site_id": "WH-07 Columbus",
+      "zone_id": "Bay 4",
+      "camera_id": null,
+      "equipment_id": "55-gal drum",
+      "assigned_to": "P. Natarajan",
+      "occurred_at": "2026-10-22T03:11:53.957Z",
+      "received_at": "2026-10-22T03:12:53.957Z",
+      "affected": [
+        "Bay 4",
+        "55-gal drum"
+      ],
+      "classification": {
+        "category": "near_miss",
+        "confidence": 0.91,
+        "flags": []
+      },
+      "evidence": [
+        {
+          "asset_id": "AST-10471",
+          "type": "photo",
+          "name": "INC-1047_photo.jpg",
+          "size": "2.6 MB",
+          "checksum": "41c43282f20ea2a9b9656c12ae5aa20ac55d090cf242b2c6",
+          "captured_at": "2026-10-22T03:11:53.957Z",
+          "uploaded_at": "2026-10-22T03:12:53.957Z",
+          "uploader": "worker app"
+        }
+      ],
+      "detections": [],
+      "transcript": [
+        {
+          "t": "0:04",
+          "speaker": "SPEAKER_00",
+          "text": "That drum just tipped off the pallet in Bay 4."
+        },
+        {
+          "t": "0:11",
+          "speaker": "SPEAKER_01",
+          "text": "Cap broke, blue liquid on the floor. Stay back until we know what it is."
+        },
+        {
+          "t": "0:19",
+          "speaker": "SPEAKER_00",
+          "text": "Nobody was near it. Dave is fine."
+        }
+      ],
+      "locations": [
+        {
+          "source_type": "Photo EXIF",
+          "method": "EXIF GPS",
+          "lat": 39.96084,
+          "lon": -83.00112999999999,
+          "accuracy_m": 8,
+          "captured_at": "2026-10-22T03:11:53.957Z",
+          "validation": "valid"
+        }
+      ],
+      "runs": [
+        {
+          "run_id": "RUN-1047A",
+          "agent": "ClassifierAgent 1.2",
+          "status": "completed",
+          "started_at": "2026-10-22T03:13:53.957Z",
+          "duration_s": 9
+        },
+        {
+          "run_id": "RUN-1047B",
+          "agent": "SOP search tool",
+          "status": "completed",
+          "started_at": "2026-10-22T03:14:53.957Z",
+          "duration_s": 2
+        },
+        {
+          "run_id": "RUN-1047C",
+          "agent": "FinalReportAgent 1.2",
+          "status": "completed",
+          "started_at": "2026-10-22T03:15:53.957Z",
+          "duration_s": 14
+        }
+      ],
+      "retrievals": [
+        {
+          "query": "Spill response Bay 4",
+          "hits": [
+            {
+              "doc": "SOP-014",
+              "rev": "C",
+              "section": "Chemical spill response",
+              "page": 6,
+              "score": 0.82
+            },
+            {
+              "doc": "SOP-001",
+              "rev": "F",
+              "section": "Incident reporting duties",
+              "page": 2,
+              "score": 0.64
+            }
+          ]
+        }
+      ],
+      "report": {
+        "report_id": "RPT-1047",
+        "version": 1,
+        "review_status": "in_review",
+        "generated_by": "FinalReportAgent 1.2",
+        "summary": "A drum tipped off a pallet and released blue liquid onto the floor. The area was coned off and cleanup was called. Nobody was injured.",
+        "observed": [
+          "Drum cap broken, liquid on the concrete floor.",
+          "Worker in PPE contained the spill with absorbent pads."
+        ],
+        "interpretation": [
+          "Near miss: high potential severity, no injury."
+        ],
+        "unknowns": [
+          "Identity of the liquid.",
+          "Why the pallet stack shifted."
+        ],
+        "recommendations": [
+          "Confirm substance from the SDS.",
+          "Inspect Bay 4 pallet stacking."
+        ],
+        "citations": [
+          {
+            "doc": "SOP-014",
+            "rev": "C",
+            "section": "Chemical spill response",
+            "page": 6
+          }
+        ],
+        "reviewed_by": null,
+        "review_note": null
+      },
+      "audit": [
+        {
+          "actor": "Worker app",
+          "action": "Incident created",
+          "at": "2026-10-22T03:12:53.957Z"
+        },
+        {
+          "actor": "Orchestrator",
+          "action": "Classified and draft report v1 generated",
+          "at": "2026-10-22T03:15:53.957Z"
+        },
+        {
+          "actor": "P. Natarajan",
+          "action": "Review started",
+          "at": "2026-10-22T03:23:53.957Z"
+        }
+      ]
+    },
+    {
+      "incident_id": "INC-1046",
+      "title": "Worker fall in pick aisle",
+      "priority": "P1",
+      "status": "in_review",
+      "incident_type": "Fall",
+      "source": "edge",
+      "site_id": "WH-07 Columbus",
+      "zone_id": "Pick Aisles",
+      "camera_id": "CAM-P7",
+      "equipment_id": "Aisle 14",
+      "assigned_to": "P. Natarajan",
+      "occurred_at": "2026-10-22T03:38:53.957Z",
+      "received_at": "2026-10-22T03:39:53.957Z",
+      "affected": [
+        "Pick Aisles",
+        "Aisle 14"
+      ],
+      "classification": {
+        "category": "recordable_injury",
+        "confidence": 0.78,
+        "flags": [
+          "OSHA_recordable"
+        ]
+      },
+      "evidence": [
+        {
+          "asset_id": "AST-10461",
+          "type": "video",
+          "name": "INC-1046_clip.mp4",
+          "size": "4.2 MB",
+          "checksum": "41c4328f8cee6741ffd102c51b2fe9f9ba3633c17837d1d0",
+          "captured_at": "2026-10-22T03:38:53.957Z",
+          "uploaded_at": "2026-10-22T03:39:53.957Z",
+          "uploader": "edge-CAM-P7"
+        },
+        {
+          "asset_id": "AST-10462",
+          "type": "audio",
+          "name": "INC-1046_audio.mp3",
+          "size": "310 KB",
+          "checksum": "41c4328f86bcb5b5f1ede49a27a298d9519d090cf24fc6f4",
+          "captured_at": "2026-10-22T03:38:53.957Z",
+          "uploaded_at": "2026-10-22T03:39:53.957Z",
+          "uploader": "edge-CAM-P7"
+        }
+      ],
+      "detections": [
+        {
+          "model": "pose-fall 1.3",
+          "event": "Fall",
+          "confidence": 0.78,
+          "offset_s": 6
+        }
+      ],
+      "transcript": [
+        {
+          "t": "0:03",
+          "speaker": "SPEAKER_00",
+          "text": "Man down in aisle 14, get the first aider."
+        },
+        {
+          "t": "0:09",
+          "speaker": "SPEAKER_01",
+          "text": "He says his wrist hurts. Calling medical."
+        }
+      ],
+      "locations": [
+        {
+          "source_type": "Camera registry",
+          "method": "camera to zone mapping v3",
+          "lat": 39.9606,
+          "lon": -83.0007,
+          "accuracy_m": null,
+          "captured_at": "2026-10-22T03:38:53.957Z",
+          "validation": "mapped"
+        }
+      ],
+      "runs": [
+        {
+          "run_id": "RUN-1046A",
+          "agent": "ClassifierAgent 1.2",
+          "status": "completed",
+          "started_at": "2026-10-22T03:40:53.957Z",
+          "duration_s": 9
+        },
+        {
+          "run_id": "RUN-1046B",
+          "agent": "SOP search tool",
+          "status": "completed",
+          "started_at": "2026-10-22T03:41:53.957Z",
+          "duration_s": 2
+        },
+        {
+          "run_id": "RUN-1046C",
+          "agent": "FinalReportAgent 1.2",
+          "status": "completed",
+          "started_at": "2026-10-22T03:42:53.957Z",
+          "duration_s": 14
+        }
+      ],
+      "retrievals": [
+        {
+          "query": "Fall response Pick Aisles",
+          "hits": [
+            {
+              "doc": "SOP-021",
+              "rev": "B",
+              "section": "Slip, trip and fall response",
+              "page": 3,
+              "score": 0.82
+            },
+            {
+              "doc": "SOP-001",
+              "rev": "F",
+              "section": "Incident reporting duties",
+              "page": 2,
+              "score": 0.64
+            }
+          ]
+        }
+      ],
+      "report": {
+        "report_id": "RPT-1046",
+        "version": 1,
+        "review_status": "in_review",
+        "generated_by": "FinalReportAgent 1.2",
+        "summary": "A worker fell in aisle 14 and stayed down for several seconds. Medical treatment was requested.",
+        "observed": [
+          "Pose model detected a fall and a sustained low posture.",
+          "A colleague reached the worker within 20 s."
+        ],
+        "interpretation": [
+          "Possible recordable injury pending treatment details."
+        ],
+        "unknowns": [
+          "Cause of the fall (wet floor, trip hazard).",
+          "Treatment given."
+        ],
+        "recommendations": [
+          "Inspect aisle 14 floor.",
+          "Complete the OSHA 301 form if treatment is confirmed."
+        ],
+        "citations": [
+          {
+            "doc": "SOP-021",
+            "rev": "B",
+            "section": "Slip, trip and fall response",
+            "page": 3
+          }
+        ],
+        "reviewed_by": null,
+        "review_note": null
+      },
+      "audit": [
+        {
+          "actor": "Edge service",
+          "action": "Incident created",
+          "at": "2026-10-22T03:39:53.957Z"
+        },
+        {
+          "actor": "Orchestrator",
+          "action": "Classified and draft report v1 generated",
+          "at": "2026-10-22T03:42:53.957Z"
+        },
+        {
+          "actor": "P. Natarajan",
+          "action": "Review started",
+          "at": "2026-10-22T03:50:53.957Z"
+        }
+      ]
+    },
+    {
+      "incident_id": "INC-1045",
+      "title": "Missing hard hat, Dock B",
+      "priority": "P3",
+      "status": "new",
+      "incident_type": "PPE violation",
+      "source": "edge",
+      "site_id": "WH-07 Columbus",
+      "zone_id": "Dock B",
+      "camera_id": "CAM-B1",
+      "equipment_id": "Dock door 3",
+      "assigned_to": "Unassigned",
+      "occurred_at": "2026-10-22T02:55:53.957Z",
+      "received_at": "2026-10-22T02:56:53.957Z",
+      "affected": [
+        "Dock B",
+        "Dock door 3"
+      ],
+      "classification": null,
+      "evidence": [
+        {
+          "asset_id": "AST-10451",
+          "type": "video",
+          "name": "INC-1045_clip.mp4",
+          "size": "4.2 MB",
+          "checksum": "41c4328c1735b01aa0029d1e93a7617132bebb49f3e08ac3",
+          "captured_at": "2026-10-22T02:55:53.957Z",
+          "uploaded_at": "2026-10-22T02:56:53.957Z",
+          "uploader": "edge-CAM-B1"
+        },
+        {
+          "asset_id": "AST-10452",
+          "type": "audio",
+          "name": "INC-1045_audio.mp3",
+          "size": "310 KB",
+          "checksum": "41c4328c11afe6e622bebb49f3e65c1d9559cdc83e001dab",
+          "captured_at": "2026-10-22T02:55:53.957Z",
+          "uploaded_at": "2026-10-22T02:56:53.957Z",
+          "uploader": "edge-CAM-B1"
+        }
+      ],
+      "detections": [
+        {
+          "model": "ppe-yolo 2.0",
+          "event": "PPE violation",
+          "confidence": 0.8,
+          "offset_s": 6
+        }
+      ],
+      "transcript": [],
+      "locations": [
+        {
+          "source_type": "Camera registry",
+          "method": "camera to zone mapping v3",
+          "lat": 39.9614,
+          "lon": -82.9996,
+          "accuracy_m": null,
+          "captured_at": "2026-10-22T02:55:53.957Z",
+          "validation": "mapped"
+        }
+      ],
+      "runs": [
+        {
+          "run_id": "RUN-1045A",
+          "agent": "ClassifierAgent 1.2",
+          "status": "running",
+          "started_at": "2026-10-22T04:06:53.957Z",
+          "duration_s": null
+        }
+      ],
+      "retrievals": [],
+      "report": null,
+      "audit": [
+        {
+          "actor": "Edge service",
+          "action": "Incident created",
+          "at": "2026-10-22T02:56:53.957Z"
+        }
+      ]
+    },
+    {
+      "incident_id": "INC-1044",
+      "title": "Smoke detected in Cold Storage",
+      "priority": "P1",
+      "status": "approved",
+      "incident_type": "Fire / smoke",
+      "source": "edge",
+      "site_id": "WH-07 Columbus",
+      "zone_id": "Cold Storage",
+      "camera_id": "CAM-C3",
+      "equipment_id": "Compressor unit 2",
+      "assigned_to": "P. Natarajan",
+      "occurred_at": "2026-10-22T00:59:53.957Z",
+      "received_at": "2026-10-22T01:00:53.957Z",
+      "affected": [
+        "Cold Storage",
+        "Compressor unit 2"
+      ],
+      "classification": {
+        "category": "near_miss",
+        "confidence": 0.83,
+        "flags": []
+      },
+      "evidence": [
+        {
+          "asset_id": "AST-10441",
+          "type": "video",
+          "name": "INC-1044_clip.mp4",
+          "size": "4.2 MB",
+          "checksum": "41c43289a2c8c5af113fa4671b2fe9f9ba3633c17e51b7b2",
+          "captured_at": "2026-10-22T00:59:53.957Z",
+          "uploaded_at": "2026-10-22T01:00:53.957Z",
+          "uploader": "edge-CAM-C3"
+        },
+        {
+          "asset_id": "AST-10442",
+          "type": "audio",
+          "name": "INC-1044_audio.mp3",
+          "size": "310 KB",
+          "checksum": "41c43289a0d69f9fdb03ca704b6ed4951dd14540b685acda",
+          "captured_at": "2026-10-22T00:59:53.957Z",
+          "uploaded_at": "2026-10-22T01:00:53.957Z",
+          "uploader": "edge-CAM-C3"
+        }
+      ],
+      "detections": [
+        {
+          "model": "fire-smoke 1.1",
+          "event": "Fire / smoke",
+          "confidence": 0.83,
+          "offset_s": 6
+        }
+      ],
+      "transcript": [],
+      "locations": [
+        {
+          "source_type": "Camera registry",
+          "method": "camera to zone mapping v3",
+          "lat": 39.9603,
+          "lon": -83.002,
+          "accuracy_m": null,
+          "captured_at": "2026-10-22T00:59:53.957Z",
+          "validation": "mapped"
+        }
+      ],
+      "runs": [
+        {
+          "run_id": "RUN-1044A",
+          "agent": "ClassifierAgent 1.2",
+          "status": "completed",
+          "started_at": "2026-10-22T01:01:53.957Z",
+          "duration_s": 9
+        },
+        {
+          "run_id": "RUN-1044B",
+          "agent": "SOP search tool",
+          "status": "completed",
+          "started_at": "2026-10-22T01:02:53.957Z",
+          "duration_s": 2
+        },
+        {
+          "run_id": "RUN-1044C",
+          "agent": "FinalReportAgent 1.2",
+          "status": "completed",
+          "started_at": "2026-10-22T01:03:53.957Z",
+          "duration_s": 14
+        }
+      ],
+      "retrievals": [
+        {
+          "query": "Fire / smoke response Cold Storage",
+          "hits": [
+            {
+              "doc": "SOP-030",
+              "rev": "A",
+              "section": "Fire and smoke response",
+              "page": 5,
+              "score": 0.82
+            },
+            {
+              "doc": "SOP-001",
+              "rev": "F",
+              "section": "Incident reporting duties",
+              "page": 2,
+              "score": 0.64
+            }
+          ]
+        }
+      ],
+      "report": {
+        "report_id": "RPT-1044",
+        "version": 1,
+        "review_status": "approved",
+        "generated_by": "FinalReportAgent 1.2",
+        "summary": "Light smoke was seen near compressor unit 2. The unit was isolated and no fire developed.",
+        "observed": [
+          "Smoke signature detected for 14 s.",
+          "Compressor was powered off by the shift lead."
+        ],
+        "interpretation": [
+          "Near miss with high potential severity."
+        ],
+        "unknowns": [
+          "Root cause of the overheating."
+        ],
+        "recommendations": [
+          "Service compressor unit 2.",
+          "Add the unit to the weekly thermal check."
+        ],
+        "citations": [
+          {
+            "doc": "SOP-030",
+            "rev": "A",
+            "section": "Fire and smoke response",
+            "page": 5
+          }
+        ],
+        "reviewed_by": "P. Natarajan",
+        "review_note": "Confirmed overheated compressor housing; maintenance ticket raised."
+      },
+      "audit": [
+        {
+          "actor": "Edge service",
+          "action": "Incident created",
+          "at": "2026-10-22T01:00:53.957Z"
+        },
+        {
+          "actor": "Orchestrator",
+          "action": "Classified and draft report v1 generated",
+          "at": "2026-10-22T01:03:53.957Z"
+        },
+        {
+          "actor": "P. Natarajan",
+          "action": "Review started",
+          "at": "2026-10-22T01:11:53.957Z"
+        },
+        {
+          "actor": "P. Natarajan",
+          "action": "Approved report v1",
+          "at": "2026-10-22T01:24:53.957Z",
+          "note": "Confirmed overheated compressor housing; maintenance ticket raised."
+        }
+      ]
+    },
+    {
+      "incident_id": "INC-1043",
+      "title": "Pallet rack damage, Shipping",
+      "priority": "P2",
+      "status": "approved",
+      "incident_type": "Equipment damage",
+      "source": "worker",
+      "site_id": "WH-07 Columbus",
+      "zone_id": "Shipping",
+      "camera_id": null,
+      "equipment_id": "Rack S-12",
+      "assigned_to": "A. Romero",
+      "occurred_at": "2026-10-21T21:49:53.957Z",
+      "received_at": "2026-10-21T21:50:53.957Z",
+      "affected": [
+        "Shipping",
+        "Rack S-12"
+      ],
+      "classification": {
+        "category": "no_classification_needed",
+        "confidence": 0.7,
+        "flags": []
+      },
+      "evidence": [
+        {
+          "asset_id": "AST-10431",
+          "type": "photo",
+          "name": "INC-1043_photo.jpg",
+          "size": "2.6 MB",
+          "checksum": "41c432863e4ae6e5f5a12056e6d22a824dd581847ac67e82",
+          "captured_at": "2026-10-21T21:49:53.957Z",
+          "uploaded_at": "2026-10-21T21:50:53.957Z",
+          "uploader": "worker app"
+        }
+      ],
+      "detections": [],
+      "transcript": [],
+      "locations": [
+        {
+          "source_type": "Manual zone selection",
+          "method": "worker choice",
+          "lat": null,
+          "lon": null,
+          "accuracy_m": null,
+          "captured_at": "2026-10-21T21:49:53.957Z",
+          "validation": "unverified"
+        }
+      ],
+      "runs": [
+        {
+          "run_id": "RUN-1043A",
+          "agent": "ClassifierAgent 1.2",
+          "status": "completed",
+          "started_at": "2026-10-21T21:51:53.957Z",
+          "duration_s": 9
+        },
+        {
+          "run_id": "RUN-1043B",
+          "agent": "SOP search tool",
+          "status": "completed",
+          "started_at": "2026-10-21T21:52:53.957Z",
+          "duration_s": 2
+        },
+        {
+          "run_id": "RUN-1043C",
+          "agent": "FinalReportAgent 1.2",
+          "status": "completed",
+          "started_at": "2026-10-21T21:53:53.957Z",
+          "duration_s": 14
+        }
+      ],
+      "retrievals": [
+        {
+          "query": "Equipment damage response Shipping",
+          "hits": [
+            {
+              "doc": "SOP-025",
+              "rev": "B",
+              "section": "Racking inspection",
+              "page": 7,
+              "score": 0.82
+            },
+            {
+              "doc": "SOP-001",
+              "rev": "F",
+              "section": "Incident reporting duties",
+              "page": 2,
+              "score": 0.64
+            }
+          ]
+        }
+      ],
+      "report": {
+        "report_id": "RPT-1043",
+        "version": 1,
+        "review_status": "approved",
+        "generated_by": "FinalReportAgent 1.2",
+        "summary": "A worker photographed a bent upright on rack S-12. No injury reported.",
+        "observed": [
+          "Photo shows a deformed upright at the base."
+        ],
+        "interpretation": [
+          "Equipment damage with no injury; structural risk until inspected."
+        ],
+        "unknowns": [
+          "Date and cause of the impact."
+        ],
+        "recommendations": [
+          "Tag out rack S-12 until inspected."
+        ],
+        "citations": [
+          {
+            "doc": "SOP-025",
+            "rev": "B",
+            "section": "Racking inspection",
+            "page": 7
+          }
+        ],
+        "reviewed_by": "A. Romero",
+        "review_note": "Upright bent by forklift contact; rack tagged out."
+      },
+      "audit": [
+        {
+          "actor": "Worker app",
+          "action": "Incident created",
+          "at": "2026-10-21T21:50:53.957Z"
+        },
+        {
+          "actor": "Orchestrator",
+          "action": "Classified and draft report v1 generated",
+          "at": "2026-10-21T21:53:53.957Z"
+        },
+        {
+          "actor": "A. Romero",
+          "action": "Review started",
+          "at": "2026-10-21T22:01:53.957Z"
+        },
+        {
+          "actor": "A. Romero",
+          "action": "Approved report v1",
+          "at": "2026-10-21T22:14:53.957Z",
+          "note": "Upright bent by forklift contact; rack tagged out."
+        }
+      ]
+    },
+    {
+      "incident_id": "INC-1041",
+      "title": "Hand laceration at Shipping",
+      "priority": "P2",
+      "status": "closed",
+      "incident_type": "Equipment damage",
+      "source": "worker",
+      "site_id": "WH-07 Columbus",
+      "zone_id": "Shipping",
+      "camera_id": null,
+      "equipment_id": "Strapping tool",
+      "assigned_to": "A. Romero",
+      "occurred_at": "2026-10-20T03:49:53.957Z",
+      "received_at": "2026-10-20T03:50:53.957Z",
+      "affected": [
+        "Shipping",
+        "Strapping tool"
+      ],
+      "classification": {
+        "category": "first_aid_case",
+        "confidence": 0.88,
+        "flags": []
+      },
+      "evidence": [
+        {
+          "asset_id": "AST-10411",
+          "type": "photo",
+          "name": "INC-1041_photo.jpg",
+          "size": "2.6 MB",
+          "checksum": "41c4328054288c0b1b03ca704a966e4e0199cdc83e04d024",
+          "captured_at": "2026-10-20T03:49:53.957Z",
+          "uploaded_at": "2026-10-20T03:50:53.957Z",
+          "uploader": "worker app"
+        }
+      ],
+      "detections": [],
+      "transcript": [],
+      "locations": [
+        {
+          "source_type": "Manual zone selection",
+          "method": "worker choice",
+          "lat": null,
+          "lon": null,
+          "accuracy_m": null,
+          "captured_at": "2026-10-20T03:49:53.957Z",
+          "validation": "unverified"
+        }
+      ],
+      "runs": [
+        {
+          "run_id": "RUN-1041A",
+          "agent": "ClassifierAgent 1.2",
+          "status": "completed",
+          "started_at": "2026-10-20T03:51:53.957Z",
+          "duration_s": 9
+        },
+        {
+          "run_id": "RUN-1041B",
+          "agent": "SOP search tool",
+          "status": "completed",
+          "started_at": "2026-10-20T03:52:53.957Z",
+          "duration_s": 2
+        },
+        {
+          "run_id": "RUN-1041C",
+          "agent": "FinalReportAgent 1.2",
+          "status": "completed",
+          "started_at": "2026-10-20T03:53:53.957Z",
+          "duration_s": 14
+        }
+      ],
+      "retrievals": [
+        {
+          "query": "Equipment damage response Shipping",
+          "hits": [
+            {
+              "doc": "SOP-025",
+              "rev": "B",
+              "section": "Racking inspection",
+              "page": 7,
+              "score": 0.82
+            },
+            {
+              "doc": "SOP-001",
+              "rev": "F",
+              "section": "Incident reporting duties",
+              "page": 2,
+              "score": 0.64
+            }
+          ]
+        }
+      ],
+      "report": {
+        "report_id": "RPT-1041",
+        "version": 1,
+        "review_status": "closed",
+        "generated_by": "FinalReportAgent 1.2",
+        "summary": "A worker cut a hand on a strapping tool and received first aid on site.",
+        "observed": [
+          "Worker described a minor cut and on-site first aid."
+        ],
+        "interpretation": [
+          "First-aid case."
+        ],
+        "unknowns": [],
+        "recommendations": [
+          "Replace worn tool guard."
+        ],
+        "citations": [
+          {
+            "doc": "SOP-025",
+            "rev": "B",
+            "section": "Racking inspection",
+            "page": 7
+          }
+        ],
+        "reviewed_by": "A. Romero",
+        "review_note": "First aid given on site; guard replaced."
+      },
+      "audit": [
+        {
+          "actor": "Worker app",
+          "action": "Incident created",
+          "at": "2026-10-20T03:50:53.957Z"
+        },
+        {
+          "actor": "Orchestrator",
+          "action": "Classified and draft report v1 generated",
+          "at": "2026-10-20T03:53:53.957Z"
+        },
+        {
+          "actor": "A. Romero",
+          "action": "Review started",
+          "at": "2026-10-20T04:01:53.957Z"
+        },
+        {
+          "actor": "A. Romero",
+          "action": "Approved report v1",
+          "at": "2026-10-20T04:14:53.957Z",
+          "note": "First aid given on site; guard replaced."
+        },
+        {
+          "actor": "A. Romero",
+          "action": "Closed incident",
+          "at": "2026-10-20T04:49:53.957Z",
+          "note": "First aid given on site; guard replaced."
+        }
+      ]
+    },
+    {
+      "incident_id": "INC-1039",
+      "title": "False fall alert at Dock A",
+      "priority": "P3",
+      "status": "rejected",
+      "incident_type": "Fall",
+      "source": "edge",
+      "site_id": "WH-07 Columbus",
+      "zone_id": "Dock A",
+      "camera_id": "CAM-A2",
+      "equipment_id": "Dock door 1",
+      "assigned_to": "P. Natarajan",
+      "occurred_at": "2026-10-19T04:29:53.957Z",
+      "received_at": "2026-10-19T04:30:53.957Z",
+      "affected": [
+        "Dock A",
+        "Dock door 1"
+      ],
+      "classification": {
+        "category": "first_aid_case",
+        "confidence": 0.52,
+        "flags": []
+      },
+      "evidence": [
+        {
+          "asset_id": "AST-10391",
+          "type": "video",
+          "name": "INC-1039_clip.mp4",
+          "size": "4.2 MB",
+          "checksum": "41c43213c022a3853b15ce8657eba5b5fefa7f8d20bf5958",
+          "captured_at": "2026-10-19T04:29:53.957Z",
+          "uploaded_at": "2026-10-19T04:30:53.957Z",
+          "uploader": "edge-CAM-A2"
+        },
+        {
+          "asset_id": "AST-10392",
+          "type": "audio",
+          "name": "INC-1039_audio.mp3",
+          "size": "310 KB",
+          "checksum": "41c43213c278717135a120567f2a1051d91581847a538230",
+          "captured_at": "2026-10-19T04:29:53.957Z",
+          "uploaded_at": "2026-10-19T04:30:53.957Z",
+          "uploader": "edge-CAM-A2"
+        }
+      ],
+      "detections": [
+        {
+          "model": "pose-fall 1.3",
+          "event": "Fall",
+          "confidence": 0.52,
+          "offset_s": 6
+        }
+      ],
+      "transcript": [],
+      "locations": [
+        {
+          "source_type": "Camera registry",
+          "method": "camera to zone mapping v3",
+          "lat": 39.9612,
+          "lon": -83.0003,
+          "accuracy_m": null,
+          "captured_at": "2026-10-19T04:29:53.957Z",
+          "validation": "mapped"
+        }
+      ],
+      "runs": [
+        {
+          "run_id": "RUN-1039A",
+          "agent": "ClassifierAgent 1.2",
+          "status": "completed",
+          "started_at": "2026-10-19T04:31:53.957Z",
+          "duration_s": 9
+        },
+        {
+          "run_id": "RUN-1039B",
+          "agent": "SOP search tool",
+          "status": "completed",
+          "started_at": "2026-10-19T04:32:53.957Z",
+          "duration_s": 2
+        },
+        {
+          "run_id": "RUN-1039C",
+          "agent": "FinalReportAgent 1.2",
+          "status": "completed",
+          "started_at": "2026-10-19T04:33:53.957Z",
+          "duration_s": 14
+        }
+      ],
+      "retrievals": [
+        {
+          "query": "Fall response Dock A",
+          "hits": [
+            {
+              "doc": "SOP-021",
+              "rev": "B",
+              "section": "Slip, trip and fall response",
+              "page": 3,
+              "score": 0.82
+            },
+            {
+              "doc": "SOP-001",
+              "rev": "F",
+              "section": "Incident reporting duties",
+              "page": 2,
+              "score": 0.64
+            }
+          ]
+        }
+      ],
+      "report": {
+        "report_id": "RPT-1039",
+        "version": 1,
+        "review_status": "rejected",
+        "generated_by": "FinalReportAgent 1.2",
+        "summary": "The edge model flagged a fall, but the clip shows a worker crouching to lift a box.",
+        "observed": [
+          "Posture returned to standing within 2 s."
+        ],
+        "interpretation": [
+          "Likely false positive."
+        ],
+        "unknowns": [],
+        "recommendations": [
+          "Add this clip to the false-positive review set."
+        ],
+        "citations": [
+          {
+            "doc": "SOP-021",
+            "rev": "B",
+            "section": "Slip, trip and fall response",
+            "page": 3
+          }
+        ],
+        "reviewed_by": "P. Natarajan",
+        "review_note": "Rejected: worker crouched to lift a box, camera glare. Not a fall."
+      },
+      "audit": [
+        {
+          "actor": "Edge service",
+          "action": "Incident created",
+          "at": "2026-10-19T04:30:53.957Z"
+        },
+        {
+          "actor": "Orchestrator",
+          "action": "Classified and draft report v1 generated",
+          "at": "2026-10-19T04:33:53.957Z"
+        },
+        {
+          "actor": "P. Natarajan",
+          "action": "Review started",
+          "at": "2026-10-19T04:41:53.957Z"
+        },
+        {
+          "actor": "P. Natarajan",
+          "action": "Rejected report v1",
+          "at": "2026-10-19T04:54:53.957Z",
+          "note": "Rejected: worker crouched to lift a box, camera glare. Not a fall."
+        }
+      ]
+    }
+  ],
+  "documents": [
+    {
+      "document_id": "SOP-014",
+      "title": "Chemical spill response",
+      "type": "SOP",
+      "revision": "C",
+      "status": "Effective",
+      "effective_from": "2026-03-01",
+      "ingestion": "Indexed",
+      "pages": 12
+    },
+    {
+      "document_id": "SOP-017",
+      "title": "Powered industrial truck safety",
+      "type": "SOP",
+      "revision": "E",
+      "status": "Effective",
+      "effective_from": "2026-06-15",
+      "ingestion": "Indexed",
+      "pages": 18
+    },
+    {
+      "document_id": "SOP-017",
+      "title": "Powered industrial truck safety",
+      "type": "SOP",
+      "revision": "D",
+      "status": "Superseded",
+      "effective_from": "2025-02-10",
+      "ingestion": "Indexed",
+      "pages": 17
+    },
+    {
+      "document_id": "SOP-021",
+      "title": "Slip, trip and fall response",
+      "type": "SOP",
+      "revision": "B",
+      "status": "Effective",
+      "effective_from": "2026-01-20",
+      "ingestion": "Indexed",
+      "pages": 9
+    },
+    {
+      "document_id": "SOP-030",
+      "title": "Fire and smoke response",
+      "type": "SOP",
+      "revision": "A",
+      "status": "Draft",
+      "effective_from": null,
+      "ingestion": "Processing",
+      "pages": 14
+    },
+    {
+      "document_id": "ROHS-2291",
+      "title": "Supplier declaration: Voltrex Ltd, part VX-220",
+      "type": "RoHS",
+      "revision": "A",
+      "status": "Pending verification",
+      "effective_from": "2026-08-02",
+      "ingestion": "Needs review",
+      "pages": 3,
+      "warning": "Exemption field extracted with low confidence."
+    }
+  ]
+}

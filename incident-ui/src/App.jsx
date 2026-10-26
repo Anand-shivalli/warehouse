@@ -1,12 +1,15 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { listIncidents, getIncident, getOverview, listDocuments, createIncident, reviewIncident } from "./api";
 import { ZONES, TYPES } from "./mock";
+import { Btn, inp } from "./ui";
+import { ReportPage } from "./ReportPage";
 
 const ICONS = {
   home: "M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z", bolt: "M13 2L4 14h7l-1 8 9-12h-7z",
   review: "M9 11l3 3 8-8M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9", file: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 13h8M8 17h8",
   plus: "M12 5v14M5 12h14", right: "M9 6l6 6-6 6", down: "M6 9l6 6 6-6", left: "M15 6l-6 6 6 6", clock: "M12 7v5l3 2M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z",
   search: "M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.3-4.3", x: "M6 6l12 12M18 6L6 18", lock: "M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5z",
+  mic: "M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3zM5 11a7 7 0 0 0 14 0M12 18v3",
 };
 const STATUS = {
   new: ["New", "border-red-900 bg-red-950/60 text-red-300"], in_review: ["In review", "border-amber-900 bg-amber-950/60 text-amber-300"],
@@ -16,7 +19,7 @@ const STATUS = {
 const PRI = { P1: "bg-red-700", P2: "bg-orange-700", P3: "bg-yellow-600" };
 const CAT = { near_miss: "Near miss", first_aid_case: "First-aid case", recordable_injury: "Recordable injury", serious_injury: "Serious injury", no_classification_needed: "No classification needed" };
 const ACTIVE = ["new", "in_review", "approved"];
-const NAV = [["dashboard", "Dashboard", "home"], ["incidents", "Incidents", "bolt"], ["reviews", "Review queue", "review"], ["documents", "Documents", "file"]];
+const NAV = [["dashboard", "Dashboard", "home"], ["report", "Report an incident", "mic"], ["incidents", "Incidents", "bolt"], ["reviews", "Review queue", "review"], ["documents", "Documents", "file"]];
 
 const rel = (iso) => {
   const m = Math.max(0, Math.round((Date.now() - new Date(iso)) / 60000));
@@ -40,12 +43,7 @@ const Panel = ({ title, action, children, className = "" }) => (
     {children}
   </section>
 );
-const Btn = ({ children, kind = "primary", ...p }) => (
-  <button {...p} className={`inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 disabled:cursor-not-allowed disabled:opacity-40 ${
-    { primary: "bg-blue-600 text-white hover:bg-blue-500", ghost: "bg-[#262626] text-neutral-200 hover:bg-[#303030]", danger: "bg-red-900/60 text-red-200 hover:bg-red-900" }[kind]}`}>{children}</button>
-);
 const Field = ({ label, children }) => <label className="block text-sm text-neutral-400"><span className="mb-1 block">{label}</span>{children}</label>;
-const inp = "w-full rounded-lg border border-white/10 bg-[#111] px-3 py-2 text-sm text-neutral-100 placeholder-neutral-600 focus:border-blue-500 focus:outline-none";
 const Skeleton = () => <div className="space-y-3">{[0, 1, 2].map((i) => <div key={i} className="h-24 animate-pulse rounded-xl bg-[#1a1a1a]" />)}</div>;
 
 function Spark({ data, id }) {
@@ -299,6 +297,7 @@ export default function App() {
   const [view, id] = route;
   let body;
   if (err) body = <div className="rounded-xl bg-[#1a1a1a] p-6"><p className="text-sm text-red-400">Could not load data: {err}</p><div className="mt-3"><Btn onClick={load}>Retry</Btn></div></div>;
+  else if (view === "report") body = <ReportPage />;
   else if (!incidents || !overview || !docs) body = <Skeleton />;
   else if (view === "incidents" && id) body = <DetailRoute id={id} go={go} reload={load} />;
   else if (view === "incidents") body = <IncidentsPage incidents={incidents} go={go} title="Incidents" zone={zone} setZone={setZone} />;

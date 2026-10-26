@@ -34,8 +34,17 @@ class ReviewResult(BaseModel):
     notes: str = ""
 
 
+class Recommendation(BaseModel):
+    action: str
+    source_ids: List[str] = Field(default_factory=list)   # ids like "S1" from the retrieved passages
+
+
 class ComposedReport(BaseModel):
     report_text: str
+    observed: List[str] = Field(default_factory=list)
+    interpretation: List[str] = Field(default_factory=list)
+    unknowns: List[str] = Field(default_factory=list)
+    recommendations: List[Recommendation] = Field(default_factory=list)
 
 
 

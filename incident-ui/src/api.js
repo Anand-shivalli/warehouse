@@ -42,3 +42,22 @@ export function reviewIncident(id, action, comment) {
   stamp(inc, "You", label, comment);
   return later(inc);
 }
+
+// ---- Report an incident (always talks to the FastAPI backend in api.py) ----
+const RBASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
+async function rhttp(path, opts = {}) {
+  const res = await fetch(RBASE + path, opts);
+  if (!res.ok) {
+    let m; try { m = (await res.json()).detail; } catch { m = res.statusText; }
+    throw new Error(m || res.statusText);
+  }
+  return res.json();
+}
+const form = (obj) => { const f = new FormData(); Object.entries(obj).forEach(([k, v]) => v && f.append(k, v)); return f; };
+const isVideo = (file) => /\.(mp4|mov|webm|avi|mpg|mpeg)$/i.test(file.name);
+
+export const sendTrigger = (file) => rhttp("/api/trigger", { method: "POST", body: form({ file }) });
+export const startPathA = (audio, media) => rhttp("/api/path-a", { method: "POST", body: form({ audio, [isVideo(media) ? "video" : "image"]: media }) });
+export const startPathB = (dialogue, video) => rhttp("/api/path-b", { method: "POST", body: form({ dialogue, video }) });
+export const confirmJob = (id) => rhttp(`/api/jobs/${id}/confirm`, { method: "POST" });
+export const getJob = (id) => rhttp(`/api/jobs/${id}`);

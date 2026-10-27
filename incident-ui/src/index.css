@@ -1,1 +1,64 @@
 @import "tailwindcss";
+
+/* ---- Light theme ----
+   The components use fixed dark colours, so light mode re-maps those exact classes when <html> has the class "light".
+   (Generated mapping. If you add a new dark colour class to a component, add its light value here too.) */
+html{color-scheme:dark}
+html.light{color-scheme:light}
+.light .bg-black{background-color:#f4f4f5}
+.light .bg-\[\#1a1a1a\]{background-color:#ffffff}
+.light .bg-\[\#141414\]{background-color:#fafafa}
+.light .bg-\[\#161616\]{background-color:#fafafa}
+.light .bg-\[\#111\]{background-color:#f4f4f5}
+.light .bg-\[\#2a2a2a\]{background-color:#e4e4e7}
+.light .bg-\[\#262626\]{background-color:#e4e4e7}
+.light .bg-neutral-900{background-color:#f4f4f5}
+.light .bg-neutral-800{background-color:#e4e4e7}
+.light .bg-neutral-700{background-color:#d4d4d8}
+.light .bg-red-950{background-color:#fee2e2}
+.light .bg-red-950\/60{background-color:#fee2e2}
+.light .bg-red-950\/40{background-color:#fee2e2}
+.light .bg-amber-950{background-color:#fef3c7}
+.light .bg-amber-950\/60{background-color:#fef3c7}
+.light .bg-amber-950\/40{background-color:#fef3c7}
+.light .bg-emerald-950{background-color:#d1fae5}
+.light .bg-emerald-950\/60{background-color:#d1fae5}
+.light .bg-blue-950{background-color:#dbeafe}
+.light .bg-blue-950\/60{background-color:#dbeafe}
+.light .bg-blue-950\/40{background-color:#dbeafe}
+.light .bg-red-900\/60{background-color:#fee2e2}
+.light .bg-amber-900\/70{background-color:#fde68a}
+.light .hover\:bg-\[\#202020\]:hover{background-color:#f4f4f5}
+.light .hover\:bg-\[\#1e1e1e\]:hover{background-color:#f4f4f5}
+.light .hover\:bg-\[\#1c1c1c\]:hover{background-color:#f4f4f5}
+.light .hover\:bg-\[\#303030\]:hover{background-color:#d4d4d8}
+.light .hover\:bg-red-900:hover{background-color:#fecaca}
+.light .text-white{color:#09090b}
+.light .text-neutral-100{color:#18181b}
+.light .text-neutral-200{color:#27272a}
+.light .text-neutral-300{color:#3f3f46}
+.light .text-neutral-400{color:#52525b}
+.light .text-neutral-500{color:#71717a}
+.light .text-neutral-600{color:#a1a1aa}
+.light .text-red-200{color:#991b1b}
+.light .text-red-300{color:#b91c1c}
+.light .text-red-400{color:#b91c1c}
+.light .text-amber-200{color:#78350f}
+.light .text-amber-300{color:#92400e}
+.light .text-emerald-300{color:#047857}
+.light .text-blue-200{color:#1e40af}
+.light .text-blue-300{color:#1d4ed8}
+.light .hover\:text-white:hover{color:#09090b}
+.light .hover\:text-neutral-200:hover{color:#27272a}
+.light .border-white\/10{border-color:rgba(0,0,0,.12)}
+.light .border-white\/5{border-color:rgba(0,0,0,.07)}
+.light .border-neutral-700{border-color:#d4d4d8}
+.light .border-amber-900{border-color:#fcd34d}
+.light .border-blue-900{border-color:#93c5fd}
+.light .border-red-900{border-color:#fca5a5}
+.light .border-emerald-900{border-color:#6ee7b7}
+.light .bg-blue-600,.light .bg-red-700,.light .bg-orange-700,.light .bg-yellow-600,.light .bg-red-500{color:#fff}
+.light .bg-blue-600:hover,.light .hover\:bg-blue-500:hover{color:#fff}
+.light .file\:bg-\[\#262626\]::file-selector-button{background-color:#d4d4d8}
+.light .file\:text-neutral-200::file-selector-button{color:#27272a}
+.light input,.light textarea,.light select{color:#18181b}

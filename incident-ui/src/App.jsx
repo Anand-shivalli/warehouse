@@ -10,6 +10,7 @@ const ICONS = {
   plus: "M12 5v14M5 12h14", right: "M9 6l6 6-6 6", down: "M6 9l6 6 6-6", left: "M15 6l-6 6 6 6", clock: "M12 7v5l3 2M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z",
   search: "M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.3-4.3", x: "M6 6l12 12M18 6L6 18", lock: "M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5z",
   mic: "M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3zM5 11a7 7 0 0 0 14 0M12 18v3",
+  sun: "M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6L17 7M7 17l-1.4 1.4M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8z", moon: "M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z",
 };
 const STATUS = {
   new: ["New", "border-red-900 bg-red-950/60 text-red-300"], in_review: ["In review", "border-amber-900 bg-amber-950/60 text-amber-300"],
@@ -62,12 +63,29 @@ const Kpi = ({ label, value, data, id }) => (
   <div className="overflow-hidden rounded-xl bg-[#1a1a1a]"><div className="px-4 pt-3"><p className="text-sm text-neutral-300">{label}</p><p className="text-2xl font-medium text-white">{value}</p></div><Spark data={data} id={id} /></div>
 );
 
+// Light / dark theme. The choice is remembered in this browser; the inline script in index.html applies it before the page paints.
+function useTheme() {
+  const [theme, setTheme] = useState(() => { try { return localStorage.getItem("theme") === "light" ? "light" : "dark"; } catch { return "dark"; } });
+  useEffect(() => {
+    document.documentElement.classList.toggle("light", theme === "light");
+    try { localStorage.setItem("theme", theme); } catch { /* storage blocked: the theme still works for this visit */ }
+  }, [theme]);
+  return [theme, () => setTheme((t) => (t === "light" ? "dark" : "light"))];
+}
+const ThemeToggle = ({ theme, onToggle, className = "" }) => (
+  <button onClick={onToggle} aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`} title={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
+    className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-neutral-400 transition hover:bg-[#1e1e1e] hover:text-neutral-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 ${className}`}>
+    <Icon n={theme === "light" ? "moon" : "sun"} c="h-4 w-4" />{theme === "light" ? "Dark theme" : "Light theme"}
+  </button>
+);
+
 function Shell({ route, go, counts, children, onCreate }) {
+  const [theme, toggleTheme] = useTheme();
   return (
     <div className="min-h-screen bg-black text-neutral-200 lg:flex">
       <aside className="hidden w-64 shrink-0 p-3 lg:block">
         <div className="sticky top-3 flex h-[calc(100vh-1.5rem)] flex-col rounded-2xl bg-[#141414] p-4">
-          <div className="mb-6 flex items-center gap-2 px-2 pt-2 text-white"><span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600"><Icon n="bolt" c="h-4 w-4" /></span><span className="text-lg font-semibold tracking-[0.2em]">SITEWATCH</span></div>
+          <div className="mb-6 flex items-center gap-2 px-2 pt-2 text-white"><span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600"><Icon n="bolt" c="h-4 w-4" /></span><span className="text-lg font-semibold tracking-wide">AmbientWatch</span></div>
           <nav className="space-y-1" aria-label="Main">
             {NAV.map(([k, label, ic]) => (
               <button key={k} onClick={() => go(k)} aria-current={route[0] === k ? "page" : undefined}
@@ -76,12 +94,14 @@ function Shell({ route, go, counts, children, onCreate }) {
               </button>
             ))}
           </nav>
-          <p className="mt-auto px-2 text-xs text-neutral-600">WH-07 Columbus<br />Signed in as P. Natarajan (Safety reviewer)</p>
+          <ThemeToggle theme={theme} onToggle={toggleTheme} className="mt-auto w-full" />
+          <p className="mt-2 px-2 text-xs text-neutral-600">WH-07 Columbus<br />Signed in as P. Natarajan (Safety reviewer)</p>
         </div>
       </aside>
       <div className="min-w-0 flex-1">
         <nav className="flex gap-1 overflow-x-auto border-b border-white/10 p-2 lg:hidden" aria-label="Main">
           {NAV.map(([k, label]) => <button key={k} onClick={() => go(k)} className={`whitespace-nowrap rounded-lg px-3 py-2 text-sm ${route[0] === k ? "bg-[#262626] text-white" : "text-neutral-400"}`}>{label}</button>)}
+          <ThemeToggle theme={theme} onToggle={toggleTheme} className="ml-auto whitespace-nowrap" />
         </nav>
         <main className="p-4 lg:p-6 lg:pl-3">{children}</main>
       </div>

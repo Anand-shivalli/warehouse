@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { listIncidents, getIncident, getOverview, listDocuments, createIncident, reviewIncident } from "./api";
+import { Fragment, useState, useEffect, useCallback, useMemo } from "react";
+import { listIncidents, getIncident, getOverview, listDocuments, createIncident, reviewIncident, mediaUrl, getRunOutput } from "./api";
 import { ZONES, TYPES } from "./mock";
 import { Btn, inp } from "./ui";
 import { ReportPage } from "./ReportPage";
@@ -173,6 +173,51 @@ const Dl = ({ rows }) => <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-
 const Th = ({ cols }) => <thead className="text-xs text-neutral-500"><tr>{cols.map((c) => <th key={c} className="pb-2 pr-4 font-medium">{c}</th>)}</tr></thead>;
 const List = ({ items, empty = "None recorded." }) => items?.length ? <ul className="list-disc space-y-1 pl-5 text-sm text-neutral-300">{items.map((t, i) => <li key={i}>{t}</li>)}</ul> : <p className="text-sm text-neutral-500">{empty}</p>;
 
+// Photo, audio and video kept as evidence, shown in the page. Needs the real backend (VITE_API_URL); seed data has no files.
+function EvidenceViewer({ inc }) {
+  const items = inc.evidence.filter((e) => e.has_file && mediaUrl(inc.incident_id, e.asset_id));
+  if (!items.length) return null;
+  return <div className="mb-4 grid gap-3 md:grid-cols-2">{items.map((e) => {
+    const u = mediaUrl(inc.incident_id, e.asset_id);
+    return <div key={e.asset_id} className="rounded-lg bg-[#111] p-3"><p className="mb-2 text-xs text-neutral-400">{e.type} · {e.name}</p>
+      {e.type === "photo" ? <a href={u} target="_blank" rel="noreferrer"><img src={u} alt={e.name} className="max-h-72 w-full rounded object-contain" /></a>
+        : e.type === "audio" ? <audio controls preload="metadata" src={u} className="w-full" />
+        : e.type === "video" ? <video controls preload="metadata" src={u} className="max-h-72 w-full rounded" />
+        : <a href={u} target="_blank" rel="noreferrer" className="text-sm text-blue-300 underline">Open {e.name}</a>}</div>;
+  })}</div>;
+}
+
+// One row per agent with its metrics; open a row to see what that agent produced.
+function AgentRuns({ inc }) {
+  const [open, setOpen] = useState(null); const [out, setOut] = useState({}); const [err, setErr] = useState("");
+  const toggle = async (id) => {
+    if (open === id) return setOpen(null);
+    setOpen(id); setErr("");
+    if (!(id in out)) { try { const r = await getRunOutput(inc.incident_id, id); setOut((o) => ({ ...o, [id]: r.output })); } catch (e) { setErr(String(e.message || e)); } }
+  };
+  const tok = (m) => (!m ? "" : m.total_tokens != null ? `${m.input_tokens} in / ${m.output_tokens} out` : "n/a (code step)");
+  if (!inc.runs.length) return <p className="text-sm text-neutral-500">No agent runs yet.</p>;
+  return <>
+    <div className="overflow-x-auto"><table className="w-full text-left text-sm"><Th cols={["Run", "Agent", "Status", "Started", "Duration", "Tokens", "Tool calls", ""]} /><tbody>
+      {inc.runs.map((x) => <Fragment key={x.run_id}>
+        <tr className="border-t border-white/5">
+          <td className="py-2 pr-4 font-mono text-xs text-neutral-500">{x.run_id}</td><td className="py-2 pr-4">{x.agent}</td>
+          <td className="py-2 pr-4"><Chip tone={x.status === "completed" ? "bg-emerald-950 text-emerald-300" : "bg-amber-950 text-amber-300"}>{x.status}</Chip></td>
+          <td className="py-2 pr-4 text-neutral-400">{fmt(x.started_at)}</td><td className="py-2 pr-4 text-neutral-400">{x.duration_s != null ? `${x.duration_s}s` : "n/a"}</td>
+          <td className="py-2 pr-4 text-xs text-neutral-400">{tok(x.metrics)}</td><td className="py-2 pr-4 text-neutral-400">{x.metrics?.tool_calls ?? ""}</td>
+          <td className="py-2"><button onClick={() => toggle(x.run_id)} className="text-xs text-blue-300 hover:underline">{open === x.run_id ? "Hide" : "Output"}</button></td>
+        </tr>
+        {open === x.run_id && <tr><td colSpan={8} className="pb-3">
+          {x.metrics?.model && <p className="mb-1 text-xs text-neutral-500">Model: {x.metrics.model}</p>}
+          {x.metrics?.error && <p className="mb-1 text-xs text-red-300">{x.metrics.error}</p>}
+          {err ? <p className="text-xs text-red-300">{err}</p> : <pre className="max-h-72 overflow-auto rounded-lg bg-[#111] p-3 text-xs text-neutral-300">{out[x.run_id] ? JSON.stringify(out[x.run_id].output ?? "No structured output for this step.", null, 2) : "Loading..."}</pre>}
+        </td></tr>}
+      </Fragment>)}
+    </tbody></table></div>
+    <p className="mt-3 text-xs text-neutral-500">Durations come from event timestamps, so they are approximate. Agents that run in parallel overlap. Code steps (retrieval, validation, gates) use no model tokens.</p>
+  </>;
+}
+
 export function IncidentDetail({ inc, onReview, back, initialTab = "overview" }) {
   const [tab, setTab] = useState(initialTab); const [note, setNote] = useState(""); const [busy, setBusy] = useState(false); const [err, setErr] = useState("");
   const r = inc.report, tabs = [["overview", "Overview"], ["evidence", "Evidence"], ["location", "Location"], ["trace", "Agent trace"], ["report", "Report & review"]];
@@ -200,9 +245,9 @@ export function IncidentDetail({ inc, onReview, back, initialTab = "overview" })
 
       {tab === "evidence" && (
         <div className="space-y-4">
-          <Panel title="Evidence assets">{inc.evidence.length ? <div className="overflow-x-auto"><table className="w-full text-left text-sm"><Th cols={["Type", "File", "Size", "Checksum", "Captured", "Source"]} /><tbody>{inc.evidence.map((e) => <tr key={e.asset_id} className="border-t border-white/5"><td className="py-2 pr-4"><Chip>{e.type}</Chip></td><td className="py-2 pr-4">{e.name}</td><td className="py-2 pr-4 text-neutral-400">{e.size}</td><td className="py-2 pr-4 font-mono text-xs text-neutral-500">{e.checksum.slice(0, 12)}</td><td className="py-2 pr-4 text-neutral-400">{fmt(e.captured_at)}</td><td className="py-2 text-neutral-400">{e.uploader}</td></tr>)}</tbody></table></div> : <p className="text-sm text-neutral-500">No files attached.</p>}</Panel>
+          <Panel title="Evidence assets">{inc.evidence.length ? <><EvidenceViewer inc={inc} /><div className="overflow-x-auto"><table className="w-full text-left text-sm"><Th cols={["Type", "File", "Size", "Checksum", "Captured", "Source"]} /><tbody>{inc.evidence.map((e) => <tr key={e.asset_id} className="border-t border-white/5"><td className="py-2 pr-4"><Chip>{e.type}</Chip></td><td className="py-2 pr-4">{e.name}</td><td className="py-2 pr-4 text-neutral-400">{e.size}</td><td className="py-2 pr-4 font-mono text-xs text-neutral-500">{e.checksum.slice(0, 12)}</td><td className="py-2 pr-4 text-neutral-400">{fmt(e.captured_at)}</td><td className="py-2 text-neutral-400">{e.uploader}</td></tr>)}</tbody></table></div></> : <p className="text-sm text-neutral-500">No files attached.</p>}</Panel>
           <Panel title="Edge detections">{inc.detections.length ? <table className="w-full text-left text-sm"><Th cols={["Model", "Event", "Confidence", "Offset"]} /><tbody>{inc.detections.map((d, i) => <tr key={i} className="border-t border-white/5"><td className="py-2 pr-4 font-mono text-xs">{d.model}</td><td className="py-2 pr-4">{d.event}</td><td className="py-2 pr-4">{Math.round(d.confidence * 100)}%</td><td className="py-2">{d.offset_s}s</td></tr>)}</tbody></table> : <p className="text-sm text-neutral-500">No model detections for this incident.</p>}</Panel>
-          <Panel title="Transcript">{inc.transcript.length ? <><div className="space-y-2">{inc.transcript.map((l, i) => <p key={i} className="text-sm"><span className="font-mono text-xs text-neutral-500">{l.t}</span> <span className="text-blue-300">{l.speaker}</span> <span className="text-neutral-300">{l.text}</span></p>)}</div><p className="mt-3 text-xs text-neutral-500">A transcript is evidence of what was said, not a verified fact.</p></> : <p className="text-sm text-neutral-500">No transcript registered.</p>}</Panel>
+          <Panel title="Transcript">{inc.transcript.length ? <><div className="space-y-2">{inc.transcript.map((l, i) => <p key={i} className="text-sm"><span className="font-mono text-xs text-neutral-500">{l.t}</span> <span className="text-blue-300">{l.speaker}</span> <span className="text-neutral-300">{l.text}</span></p>)}</div><p className="mt-3 text-xs text-neutral-500">{inc.transcript.some((l) => l.transcript_type === "ai_generated") ? "Machine transcript of the spoken note, written by the AI from the audio. It can contain mistakes; listen to the recording above. " : ""}A transcript is evidence of what was said, not a verified fact.</p></> : <p className="text-sm text-neutral-500">No transcript registered.</p>}</Panel>
         </div>)}
 
       {tab === "location" && (
@@ -214,8 +259,8 @@ export function IncidentDetail({ inc, onReview, back, initialTab = "overview" })
 
       {tab === "trace" && (
         <div className="space-y-4">
-          <Panel title="Agent runs">{inc.runs.length ? <table className="w-full text-left text-sm"><Th cols={["Run", "Agent", "Status", "Started", "Duration"]} /><tbody>{inc.runs.map((x) => <tr key={x.run_id} className="border-t border-white/5"><td className="py-2 pr-4 font-mono text-xs text-neutral-500">{x.run_id}</td><td className="py-2 pr-4">{x.agent}</td><td className="py-2 pr-4"><Chip tone={x.status === "completed" ? "bg-emerald-950 text-emerald-300" : "bg-amber-950 text-amber-300"}>{x.status}</Chip></td><td className="py-2 pr-4 text-neutral-400">{fmt(x.started_at)}</td><td className="py-2 text-neutral-400">{x.duration_s != null ? `${x.duration_s}s` : "..."}</td></tr>)}</tbody></table> : <p className="text-sm text-neutral-500">No agent runs yet.</p>}</Panel>
-          <Panel title="Sources retrieved">{inc.retrievals.length ? inc.retrievals.map((q, i) => <div key={i} className="mb-3 last:mb-0"><p className="mb-2 text-xs text-neutral-500">Query: {q.query}</p><div className="space-y-2">{q.hits.map((h) => <div key={h.doc} className="flex items-center justify-between rounded-lg bg-[#111] px-3 py-2 text-sm"><span>{h.doc} rev {h.rev} · {h.section} · p.{h.page}</span><span className="text-xs text-neutral-500">score {h.score}</span></div>)}</div></div>) : <p className="text-sm text-neutral-500">No retrieval recorded.</p>}<p className="mt-3 text-xs text-neutral-500">Only currently effective revisions are retrieved. A similar passage is context, not proof.</p></Panel>
+          <Panel title="Agent runs"><AgentRuns inc={inc} /></Panel>
+          <Panel title="Sources retrieved">{inc.retrievals.length ? inc.retrievals.map((q, i) => <div key={i} className="mb-3 last:mb-0"><p className="mb-2 text-xs text-neutral-500">Query: {q.query}</p><div className="space-y-2">{q.hits.map((h, k) => <div key={k} className="flex items-center justify-between rounded-lg bg-[#111] px-3 py-2 text-sm"><span>{h.doc} rev {h.rev} · {h.section} · p.{h.page}</span><span className="text-xs text-neutral-500">score {h.score}</span></div>)}</div></div>) : <p className="text-sm text-neutral-500">No retrieval recorded.</p>}<p className="mt-3 text-xs text-neutral-500">Only currently effective revisions are retrieved. A similar passage is context, not proof.</p></Panel>
         </div>)}
 
       {tab === "report" && (
@@ -225,7 +270,13 @@ export function IncidentDetail({ inc, onReview, back, initialTab = "overview" })
               {["approved", "closed"].includes(r.review_status) ? `Approved by ${r.reviewed_by}.` : r.review_status === "rejected" ? `Rejected by ${r.reviewed_by}.` : "AI-generated draft. Not an approved finding."} {r.review_note}</div>
             <Panel title={`Report v${r.version}`} action={<span className="text-xs text-neutral-500">{r.generated_by}</span>}><p className="text-sm leading-relaxed text-neutral-200">{r.summary}</p></Panel>
             <Panel title="Observed facts"><List items={r.observed} /></Panel><Panel title="Interpretation"><List items={r.interpretation} /></Panel><Panel title="Unknowns"><List items={r.unknowns} empty="No open unknowns." /></Panel><Panel title="Recommended follow-up"><List items={r.recommendations} /></Panel>
-            <Panel title="Sources"><div className="flex flex-wrap gap-2">{r.citations.map((c) => <Chip key={c.doc}>{c.doc} rev {c.rev} · {c.section} · p.{c.page}</Chip>)}</div></Panel>
+            {r.procedure_check?.length > 0 && <Panel title="Procedure check (advisory)"><div className="space-y-3">{r.procedure_check.map((p, k) => <div key={k} className="rounded-lg bg-[#111] p-3 text-sm">
+              <div className="flex flex-wrap items-center gap-2"><Chip tone={p.status === "followed" ? "bg-emerald-950 text-emerald-300" : p.status === "possible_deviation" ? "bg-amber-950 text-amber-300" : "bg-[#2a2a2a] text-neutral-400"}>{p.status === "followed" ? "Followed" : p.status === "possible_deviation" ? "Possible deviation" : "Cannot tell"}</Chip><span className="text-neutral-200">{p.requirement}</span></div>
+              {p.evidence_quote && <p className="mt-2 text-xs text-neutral-300">Reported: "{p.evidence_quote}"</p>}
+              {p.explanation && <p className="mt-1 text-xs text-neutral-400">{p.explanation}</p>}
+              <p className="mt-1 text-xs text-neutral-500">{p.source?.doc} rev {p.source?.rev} · {p.source?.section} · p.{p.source?.page}</p></div>)}</div>
+              <p className="mt-3 text-xs text-neutral-500">Compares what was reported with the retrieved procedures. Silence in the report is not a deviation. A safety reviewer decides.</p></Panel>}
+            <Panel title="Sources"><div className="flex flex-wrap gap-2">{r.citations.map((c, k) => <Chip key={k}>{c.doc} rev {c.rev} · {c.section} · p.{c.page}</Chip>)}</div></Panel>
           </div> : <Panel title="Report"><p className="text-sm text-neutral-400">No report yet. The report agent runs after classification finishes.</p></Panel>}
           <Panel title="Review" className="h-fit">
             {can.length ? <div className="space-y-3">

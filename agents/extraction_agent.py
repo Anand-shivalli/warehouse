@@ -18,6 +18,8 @@ From the audio, extract:
 - location (where the incident happened)
 - witnesses (names or references to other people present)
 - narrative_summary (a brief summary of what was said)
+- transcript (a verbatim transcription of what the speaker said, in order, with nothing added or corrected.
+  Mark unclear words as [unclear]. This is a machine transcript and will be shown to reviewers as evidence.)
 
 Return structured output only.""",
     output_schema=ExtractionResult,

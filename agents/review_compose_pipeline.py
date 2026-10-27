@@ -49,6 +49,11 @@ Output:
   "No applicable SOP or guideline was retrieved."
 - recommendations: follow-up actions. Each must come from a retrieved passage and list that passage's id in source_ids.
   Do not invent actions. If no passage clearly applies to this incident, leave this list empty.
+  Keep every condition that comes with an action. If a passage allows an action only under a condition (for example
+  "only if trained and the material is known") and the facts do not show the condition is met, or say the material or
+  situation is unknown, do not recommend that action. Use the passage for the stricter case instead (unknown material,
+  evacuation, do not attempt cleanup) and write the unmet condition in unknowns.
+  Passages that prohibit an action or set an emergency rule take priority over passages that permit it.
 Never say that anything is RoHS compliant or non-compliant. A person decides that; you may only quote what a passage says.""",
     output_schema=ComposedReport,
     output_key="report_text",

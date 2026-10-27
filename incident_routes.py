@@ -137,9 +137,16 @@ def upload_evidence(incident_id: str, file: UploadFile = File(...), asset_type: 
 
 
 @router.get("/incidents/{incident_id}/evidence/{asset_id}/download")
-def download_evidence(incident_id: str, asset_id: str, x_user: str = Header(DEFAULT_USER), x_role: str = Header(DEFAULT_ROLE)):
-    path, name, mime = _wrap(store.evidence_file, incident_id, asset_id, x_user, x_role)
-    return FileResponse(path, filename=name, media_type=mime)
+def download_evidence(incident_id: str, asset_id: str, inline: bool = False, x_user: str = Header(DEFAULT_USER), x_role: str = Header(DEFAULT_ROLE)):
+    """inline=1 lets the browser show the photo / play the audio or video in the page instead of downloading it."""
+    path, name, mime = _wrap(store.evidence_file, incident_id, asset_id, x_user, x_role, inline)
+    return FileResponse(path, filename=name, media_type=mime, content_disposition_type="inline" if inline else "attachment")
+
+
+@router.get("/incidents/{incident_id}/runs/{run_id}")
+def run_output(incident_id: str, run_id: str):
+    """What one agent produced, plus its metrics (the Agent trace tab loads this when a row is opened)."""
+    return _wrap(store.get_run_output, incident_id, run_id)
 
 
 @router.post("/incidents/{incident_id}/locations", status_code=201)

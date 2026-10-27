@@ -30,11 +30,52 @@ def validate_report(report, hits) -> dict:
     return {"review_pass": not problems, "notes": " ".join(problems), "problems": problems}
 
 
+def _norm(s) -> str:
+    return " ".join(re.sub(r"[^\w\s]", " ", str(s).casefold()).split())
+
+
+def facts_text(state) -> str:
+    """All text the agents were given as facts about the incident, flattened, for checking quotes against."""
+    out = []
+
+    def walk(v):
+        if isinstance(v, str):
+            out.append(v)
+        elif isinstance(v, dict):
+            for x in v.values():
+                walk(x)
+        elif isinstance(v, (list, tuple)):
+            for x in v:
+                walk(x)
+    for k in ("extraction_result", "vision_result", "incident_text"):
+        walk(state.get(k))
+    return _norm(" ".join(out))
+
+
+def check_procedure(dev, hits, facts: str) -> dict:
+    """Keep only procedure-check points that cite a retrieved passage and, when they claim followed / possible deviation,
+    quote words that really appear in the incident facts. Dropped points are counted and explained, never shown."""
+    sids = {h["sid"] for h in (hits or [])}
+    kept, dropped = [], []
+    for p in (dev or {}).get("points") or []:
+        status, quote = p.get("status"), _norm(p.get("evidence_quote") or "")
+        if p.get("source_id") not in sids:
+            dropped.append(f"cites {p.get('source_id')}, which was not retrieved")
+        elif status not in ("followed", "possible_deviation", "cannot_tell"):
+            dropped.append(f"unknown status {status}")
+        elif status != "cannot_tell" and (len(quote) < 6 or quote not in facts):
+            dropped.append(f"'{p.get('requirement', '')[:40]}': quote not found in the incident facts")
+        else:
+            kept.append({k: p.get(k) for k in ("requirement", "source_id", "status", "evidence_quote", "explanation")})
+    return {"points": kept, "dropped": dropped}
+
+
 class ReportValidator(BaseAgent):
     """Code check between Composer and ReviewerPass2: every recommendation traces to a passage that was actually retrieved."""
 
     async def _run_async_impl(self, ctx):
         s = ctx.session.state
         result = validate_report(s.get("report_text"), s.get("retrieval_hits"))
-        yield Event(author=self.name, actions=EventActions(state_delta={"validation_result": result}),
+        checked = check_procedure(s.get("deviation_result"), s.get("retrieval_hits"), facts_text({k: s.get(k) for k in ("extraction_result", "vision_result", "incident_text")}))
+        yield Event(author=self.name, actions=EventActions(state_delta={"validation_result": result, "deviation_checked": checked}),
                     content=types.Content(parts=[types.Part(text="Validation " + ("passed." if result["review_pass"] else "failed: " + result["notes"]))]))

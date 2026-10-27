@@ -8,6 +8,7 @@ class ExtractionResult(BaseModel):
     location: str
     witnesses: List[str] = Field(default_factory=list)
     narrative_summary: str
+    transcript: str = ""        # verbatim transcription of the audio (Path A), machine-generated
 
 
 class VisionResult(BaseModel):
@@ -46,6 +47,18 @@ class ComposedReport(BaseModel):
     unknowns: List[str] = Field(default_factory=list)
     recommendations: List[Recommendation] = Field(default_factory=list)
 
+
+
+class ProcedurePoint(BaseModel):
+    requirement: str
+    source_id: str                                     # retrieved passage id, e.g. "S1"
+    status: Literal["followed", "possible_deviation", "cannot_tell"]
+    evidence_quote: str = ""                           # exact words from the incident facts; required unless cannot_tell
+    explanation: str = ""
+
+
+class DeviationResult(BaseModel):
+    points: List[ProcedurePoint] = Field(default_factory=list)
 
 
 class ClassificationResult(BaseModel):

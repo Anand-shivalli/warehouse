@@ -99,3 +99,20 @@ def upload_doc(client, doc_id, rev, data, typ="SOP", title="Doc", name="d.pdf"):
 
 def doc_row(client, doc_id, rev):
     return next(d for d in client.get("/api/documents").json() if d["document_id"] == doc_id and d["revision"] == rev)
+
+
+# google-adk may be absent where tests run; stub just enough for the pure-Python agent helpers (validators) to import.
+import sys  # noqa: E402
+import types as _types  # noqa: E402
+try:
+    import google.adk  # noqa: F401
+except ImportError:
+    for _n in ("google", "google.adk", "google.adk.agents", "google.adk.events", "google.genai"):
+        sys.modules.setdefault(_n, _types.ModuleType(_n))
+    sys.modules["google.adk.agents"].BaseAgent = type("BaseAgent", (), {})
+    sys.modules["google.adk.events"].Event = type("Event", (), {})
+    sys.modules["google.adk.events"].EventActions = type("EventActions", (), {})
+    sys.modules["google.genai"].types = _types.SimpleNamespace()
+    sys.modules["google"].genai = sys.modules["google.genai"]
+if not os.path.isdir("agents"):                      # sandbox layout: agents live inside the cloned repo
+    sys.path.insert(0, "anand-shivalli/warehouse")

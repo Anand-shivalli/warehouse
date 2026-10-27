@@ -15,6 +15,9 @@ const stamp = (inc, actor, action, note) => inc.audit.push({ actor, action, note
 export const listIncidents = () => (BASE ? http("/api/incidents") : later(INCIDENTS));
 export const getIncident = (id) => (BASE ? http(`/api/incidents/${id}`) : later(INCIDENTS.find((i) => i.incident_id === id)));
 export const getOverview = () => (BASE ? http("/api/overview") : later(OVERVIEW));
+// Evidence file shown inside the page (img / audio / video). Null on seed data, which has no files.
+export const mediaUrl = (iid, aid) => (BASE ? `${BASE}/api/incidents/${iid}/evidence/${aid}/download?inline=1` : null);
+export const getRunOutput = (iid, rid) => (BASE ? http(`/api/incidents/${iid}/runs/${rid}`) : later({ output: null }));
 export const listDocuments = () => (BASE ? http("/api/documents") : later(DOCS));
 
 export function createIncident(body) {

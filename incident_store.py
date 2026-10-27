@@ -22,7 +22,7 @@ STORAGE_DIR = Path(os.getenv("INCIDENT_STORAGE", "storage"))
 SITE = os.getenv("SITE_ID", "WH-07 Columbus")
 MAX_UPLOAD = int(os.getenv("MAX_UPLOAD_MB", "100")) * 1024 * 1024
 PRIVILEGED_ROLES = {"safety_reviewer", "admin", "auditor"}   # may see precise coordinates
-ALLOWED_EXT = {".jpg", ".jpeg", ".png", ".mp4", ".mov", ".webm", ".mp3", ".wav", ".m4a", ".pdf", ".json", ".txt"}
+ALLOWED_EXT = {".jpg", ".jpeg", ".png", ".mp4", ".mov", ".webm", ".avi", ".mpg", ".mpeg", ".mp3", ".wav", ".m4a", ".ogg", ".aac", ".flac", ".pdf", ".json", ".txt"}
 DOC_EXT = {".pdf", ".docx"}
 DOC_TYPES = ("SOP", "RoHS", "Guideline")
 ASSET_TYPES = {"video", "audio", "photo", "transcript", "document", "other"}
@@ -120,7 +120,8 @@ def _insert_incident(c, inc):
         c.execute("INSERT INTO detections (incident_id,model,event,confidence,offset_s) VALUES (%s,%s,%s,%s,%s)",
                   (i, d.get("model"), d.get("event"), d.get("confidence"), d.get("offset_s")))
     for t in inc.get("transcript", []):
-        c.execute("INSERT INTO transcript (incident_id,t,speaker,text) VALUES (%s,%s,%s,%s)", (i, t.get("t"), t.get("speaker"), t.get("text")))
+        c.execute("INSERT INTO transcript (incident_id,transcript_type,t,speaker,text) VALUES (%s,%s,%s,%s,%s)",
+                  (i, t.get("transcript_type") or "raw", t.get("t"), t.get("speaker"), t.get("text")))
     for l in inc.get("locations", []):
         c.execute("INSERT INTO locations (incident_id,source_type,method,lat,lon,accuracy_m,captured_at,received_at,validation) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)",
                   (i, l.get("source_type"), l.get("method"), l.get("lat"), l.get("lon"), l.get("accuracy_m"),
@@ -196,6 +197,45 @@ def create_incident(body, actor="P. Natarajan", role=None):
     return get_incident(iid, role="admin", log_access=False)
 
 
+# which pipeline state key(s) hold each agent's output, so the trace can show what every agent produced
+AGENT_OUTPUT = {"ConversationTriage": ["triage"], "ExtractionAgent": ["extraction_result"], "TextExtractionAgent": ["extraction_result"],
+                "VisionAgent": ["vision_result"], "ConflictCheck": ["conflict_result"], "SignalNormalizer": ["signals"],
+                "ComplianceClassifier": ["category_result"], "RetrievalStep": ["retrieval_status", "retrieval_log"],
+                "ReviewerPass1": ["review1_result"], "Composer": ["report_text"], "ReportValidator": ["validation_result"],
+                "DeviationCheck": ["deviation_result"], "ReviewerPass2": ["review2_result"]}
+_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+
+def _runs_from_trace(n, result, t):
+    """One summary row for the whole pipeline (RUN-nnnnA, carries the full state) plus one row per agent with its metrics."""
+    trace = result.get("trace") or []
+    state = dict(result.get("state") or {})
+    state["triage"] = result.get("triage")
+    sums = {k: sum(x.get(k) or 0 for x in trace) for k in ("input_tokens", "output_tokens", "total_tokens", "tool_calls")}
+    start = min((x["started_at"] for x in trace), default=t)
+    end = max((x["ended_at"] for x in trace), default=None)
+    wall = round((parse_ts(end) - parse_ts(start)).total_seconds(), 2) if end else None
+    failed = [x for x in trace if x["status"] == "failed"]
+    runs = [{"run_id": f"RUN-{n}A", "agent": "IncidentPipeline", "status": "failed" if failed else "completed", "started_at": start,
+             "duration_s": wall, "output": {"metrics": {"agents": len(trace), "wall_clock_s": wall, **sums}, "output": result.get("state") or {}}}]
+    for k, x in enumerate(trace, start=1):
+        keys = AGENT_OUTPUT.get(x["agent"], [])
+        out = {key: state.get(key) for key in keys if state.get(key) is not None} or None
+        runs.append({"run_id": f"RUN-{n}{_LETTERS[k]}" if k < len(_LETTERS) else f"RUN-{n}-{k}", "agent": x["agent"], "status": x["status"],
+                     "started_at": x["started_at"], "duration_s": x["duration_s"],
+                     "output": {"metrics": {m: x.get(m) for m in ("events", "tool_calls", "model", "input_tokens", "output_tokens", "total_tokens", "error")},
+                                "output": out}})
+    return runs
+
+
+def _transcript_rows(result):
+    """Path B: the WhisperX lines the pipeline read. Path A: the extraction agent's own transcription of the spoken note."""
+    if result.get("transcript"):
+        return [{**x, "transcript_type": "raw"} for x in result["transcript"]]
+    text = ((result.get("extraction") or {}).get("transcript") or "").strip()
+    return [{"t": "0:00", "speaker": "Reporter", "text": text, "transcript_type": "ai_generated"}] if text else []
+
+
 def create_from_pipeline(result, kind, actor="Orchestrator"):
     """Turn a finished ADK pipeline job (api.py summarize() output) into an incident + draft report.
     Note: zone_id is the free-text location the extraction agent heard, not a validated zone."""
@@ -219,7 +259,15 @@ def create_from_pipeline(result, kind, actor="Orchestrator"):
             if key not in seen:
                 seen.add(key)
                 cites.append({"doc": h["doc"], "rev": h["rev"], "section": h.get("section"), "page": h.get("page")})
+    pc = result.get("procedure_check") or {}
+    procedure = []
+    for p_ in pc.get("points") or []:
+        h = hits_by_sid.get(p_.get("source_id")) or {}
+        procedure.append({**{k: p_.get(k) for k in ("requirement", "status", "evidence_quote", "explanation")},
+                          "source": {"doc": h.get("doc"), "rev": h.get("rev"), "section": h.get("section"), "page": h.get("page")}})
     unknowns = list(comp.get("unknowns") or [])
+    if pc.get("dropped"):
+        unknowns.append(f"{len(pc['dropped'])} procedure-check point(s) were left out because their evidence could not be verified.")
     if result.get("needs_human_review"):
         val = result.get("validation") or {}
         unknowns.append("Automated review did not pass." + (f" Validation: {val['notes']}" if val.get("notes") else ""))
@@ -237,8 +285,8 @@ def create_from_pipeline(result, kind, actor="Orchestrator"):
             "classification": {"category": cat, "confidence": {"high": 0.9, "medium": 0.7, "low": 0.5}.get(sig.get("confidence"), 0.7), "flags": flags},
             "locations": [{"source_type": "Manual zone selection", "method": "extracted from report", "lat": None, "lon": None,
                            "accuracy_m": None, "captured_at": t, "validation": "unverified"}],
-            "runs": [{"run_id": f"RUN-{n}A", "agent": "IncidentPipeline", "status": "completed", "started_at": t,
-                      "duration_s": None, "output": result.get("state") or {}}],
+            "runs": _runs_from_trace(n, result, t),
+            "transcript": _transcript_rows(result),
             "report": {"report_id": f"RPT-{n}", "version": 1, "review_status": "draft", "generated_by": "ADK pipeline",
                        "summary": result.get("report") or ext.get("narrative_summary") or "",
                        "observed": comp.get("observed") or [x for x in [ext.get("narrative_summary"), vis.get("description")] if x],
@@ -246,6 +294,7 @@ def create_from_pipeline(result, kind, actor="Orchestrator"):
                        "unknowns": unknowns,
                        "recommendations": recs, "citations": cites, "reviewed_by": None, "review_note": None},
             "retrievals": [{"query": q.get("query"), "hits": q.get("hits") or []} for q in rv.get("log") or []]})
+        c.execute("UPDATE incident_reports SET procedure_check=%s WHERE incident_id=%s", (Jsonb(procedure), iid))
         _audit(c, iid, actor, "Classified and draft report v1 generated",
                "Flagged for human review by the pipeline." if result.get("needs_human_review") else None)
     return iid
@@ -382,7 +431,7 @@ def add_evidence(iid, fileobj, filename, content_type, asset_type, uploader, cap
     return next(e for e in get_incident(iid, role="admin", log_access=False)["evidence"] if e["asset_id"] == asset_id)
 
 
-def evidence_file(iid, asset_id, actor, role=None):
+def evidence_file(iid, asset_id, actor, role=None, inline=False):
     with db.conn() as c:
         row = c.execute("SELECT storage_key,name,mime_type FROM assets WHERE asset_id=%s AND incident_id=%s", (asset_id, iid)).fetchone()
         if not row:
@@ -392,8 +441,20 @@ def evidence_file(iid, asset_id, actor, role=None):
         path = (STORAGE_DIR / row["storage_key"]).resolve()
         if STORAGE_DIR.resolve() not in path.parents or not path.is_file():
             raise StoreError("Stored file is missing.", 404)
-        _audit(c, iid, actor, "Evidence downloaded", asset_id, role, "asset", asset_id)
+        if not inline:
+            _audit(c, iid, actor, "Evidence downloaded", asset_id, role, "asset", asset_id)
+        elif not c.execute("SELECT 1 FROM audit_logs WHERE entity_id=%s AND actor=%s AND action='Evidence viewed' AND at > now() - interval '10 minutes'",
+                           (asset_id, actor)).fetchone():       # a player makes many requests; log one view per 10 minutes
+            _audit(c, iid, actor, "Evidence viewed", asset_id, role, "asset", asset_id)
     return path, row["name"], row["mime_type"] or "application/octet-stream"
+
+
+def get_run_output(iid, run_id):
+    with db.conn() as c:
+        r = c.execute("SELECT run_id,agent,status,started_at,duration_s,output FROM agent_runs WHERE incident_id=%s AND run_id=%s", (iid, run_id)).fetchone()
+    if not r:
+        raise StoreError("Run not found", 404)
+    return clean(r)
 
 
 def add_location(iid, body, actor, role=None):
@@ -434,7 +495,7 @@ def _build(c, r, role):
     report = None
     if rep:
         report = {k: rep[k] for k in ("report_id", "version", "review_status", "generated_by", "summary", "reviewed_by", "review_note",
-                                       "observed", "interpretation", "unknowns", "recommendations", "citations")}
+                                       "observed", "interpretation", "unknowns", "recommendations", "citations", "procedure_check")}
     evidence = q("SELECT asset_id,type,name,size,checksum,captured_at,uploaded_at,uploader,mime_type,reporting_session_id,"
                  "(storage_key IS NOT NULL) AS has_file FROM assets WHERE incident_id=%s ORDER BY uploaded_at, asset_id")
     locations = q("SELECT source_type,method,lat,lon,accuracy_m,captured_at,received_at,validation,asset_id,reporting_session_id "
@@ -452,9 +513,9 @@ def _build(c, r, role):
         "affected": r["affected"], "classification": cls,
         "evidence": evidence,
         "detections": q("SELECT model,event,confidence,offset_s FROM detections WHERE incident_id=%s ORDER BY id"),
-        "transcript": q("SELECT t,speaker,text FROM transcript WHERE incident_id=%s ORDER BY id"),
+        "transcript": q("SELECT t,speaker,text,transcript_type FROM transcript WHERE incident_id=%s ORDER BY id"),
         "locations": locations,
-        "runs": q("SELECT run_id,agent,status,started_at,duration_s FROM agent_runs WHERE incident_id=%s ORDER BY started_at DESC"),
+        "runs": q("SELECT run_id,agent,status,started_at,duration_s,output->'metrics' AS metrics FROM agent_runs WHERE incident_id=%s ORDER BY started_at, run_id"),
         "retrievals": [{"query": x["query"], "hits": x["hits"]} for x in c.execute("SELECT query,hits FROM retrieval_events WHERE incident_id=%s ORDER BY id", (i,))],
         "report": report,
         "audit": q("SELECT actor,action,note,at FROM audit_logs WHERE incident_id=%s AND entity_type IN ('incident','asset','location','reporting_session') ORDER BY at, id"),

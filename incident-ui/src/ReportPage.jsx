@@ -27,6 +27,7 @@ const STEPS = [
   ["Document retrieval (SOPs, guidelines, RoHS)", ["RetrievalStep"]],
   ["Review 1: consistency", ["ReviewerPass1"]],
   ["Report writing", ["Composer"]],
+  ["Procedure check", ["DeviationCheck"]],
   ["Citation check", ["ReportValidator"]],
   ["Review 2: grounding", ["ReviewerPass2", "Gate_Pass2"]],
 ];
